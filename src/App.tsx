@@ -18,8 +18,8 @@ export default function App() {
     setCurrentKeyword(keyword);
 
     try {
-      // Panggil Supabase Edge Function
-      const response = await fetch('http://127.0.0.1:54321/functions/v1/search-maps', {
+      // Panggil Supabase Edge Function (Production)
+      const response = await fetch('https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/search-maps', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
