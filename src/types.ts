@@ -7,3 +7,9 @@ export interface MapPlace {
   phone?: string;
   rating?: number;
 }
+
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
+}

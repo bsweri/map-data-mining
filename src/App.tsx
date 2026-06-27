@@ -3,6 +3,7 @@ import Header from './components/Header';
 import SearchForm from './components/SearchForm';
 import DataGrid from './components/DataGrid';
 import ExportButton from './components/ExportButton';
+import AdSenseBanner from './components/AdSenseBanner';
 import type { MapPlace } from './types';
 
 export default function App() {
@@ -49,7 +50,12 @@ export default function App() {
     >
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      {/* Iklan Atas (Top Banner) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <AdSenseBanner className="mb-2" slot="1111111111" />
+      </div>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <SearchForm onSearch={handleSearch} isLoading={isLoading} />
         
         {error && (
@@ -62,6 +68,13 @@ export default function App() {
           <>
             <DataGrid data={data} />
             <ExportButton data={data} keyword={currentKeyword} />
+            
+            {/* Iklan Bawah (Bottom Banner) - Muncul jika data berhasil di-load */}
+            {data.length > 0 && (
+              <div className="mt-8">
+                <AdSenseBanner slot="2222222222" />
+              </div>
+            )}
           </>
         )}
       </main>
