@@ -22,20 +22,9 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        if (window.google && window.google.maps) {
-          const geocoder = new window.google.maps.Geocoder();
-          geocoder.geocode({ location: { lat: latitude, lng: longitude } }, (results, status) => {
-            setIsDetecting(false);
-            if (status === 'OK' && results && results[0]) {
-              setLocation(results[0].formatted_address);
-            } else {
-              setLocation(`${latitude}, ${longitude}`);
-            }
-          });
-        } else {
-          setIsDetecting(false);
-          setLocation(`${latitude}, ${longitude}`);
-        }
+        // Langsung set koordinat karena geocoding sudah ditangani di Edge Function
+        setLocation(`${latitude}, ${longitude}`);
+        setIsDetecting(false);
       },
       () => {
         setIsDetecting(false);
