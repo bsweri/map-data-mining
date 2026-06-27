@@ -1,0 +1,37 @@
+buatkan saya issue.md berisi planning untuk aplikasi website bernama “Map Data Mining” untuk pencarian data di google maps :
+
+Teknologi Utama :
+- Framework: React JS
+- Styling: Tailwind CSS
+- Export Data: Library pendukung untuk konversi JSON/Array ke Excel (misalnya `xlsx` atau library serupa)
+- Google Maps Platform : Places API, Nearby Search API
+
+Data yang diinput :
+- nama bisnis yang pada suatu area dan dalam radius tertentu
+- Jarak radius dalam satuan KM
+
+Catatan input data :
+- Semua input, design interface dapat diimplentasikan ke Google Maps Plastform 
+
+
+Data yang ingin di scrap adalah :
+- Nama Lokasi/Tempat sesuai dengan tujuan pencarian
+- Alamat tempat
+- Keterangan Zona Radius
+- Link Google Maps
+
+Outputnya :
+- Tampilan Web UI yang modern, user friendly dan responsive
+- data yang di scrap ditampilkan dalam bentuk grid yang dengan warna yang soft dan modern, kemudian ada pilihan Export data menjadi file excel dengan tampilan yang menarik
+
+Catatan lain :
+- Tidak perlu ada database
+- Tidak perlu ada Authentication
+- Ketika web di refresh maka semua data hilang atau direset dari UI
+- Aplikasi ini adalah frontend app
+
+
+Tampilan UI nya cenderung kebiruan dengan tampilan yang sudah mengikuti layar berbagai device
+
+Jangan terlalu low level atau detail, cukup instruksikan secara high level, karena nanti planning ini akan dikerjakan oleh programmer junior atau model yang lebih murah
+
