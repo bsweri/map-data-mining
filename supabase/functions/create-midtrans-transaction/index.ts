@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://bsweri.github.io',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -12,14 +12,15 @@ serve(async (req) => {
   }
 
   try {
-    const { amount } = await req.json();
-
-    if (!amount || amount < 10000) {
+    const payload = await req.json();
+    
+    if (typeof payload.amount !== 'number' || payload.amount < 10000 || payload.amount > 100000000) {
       return new Response(
-        JSON.stringify({ error: 'Nominal donasi minimal Rp 10.000' }),
+        JSON.stringify({ error: 'Nominal donasi tidak valid (Minimal Rp 10.000)' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    const amount = payload.amount;
 
     const serverKey = Deno.env.get('MIDTRANS_SERVER_KEY');
     if (!serverKey) {
@@ -28,9 +29,9 @@ serve(async (req) => {
 
     const authString = btoa(`${serverKey}:`);
 
-    const orderId = `DONATION-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const orderId = `DONATION-${crypto.randomUUID()}`;
 
-    const payload = {
+    const midtransPayload = {
       transaction_details: {
         order_id: orderId,
         gross_amount: amount,
@@ -56,7 +57,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
         'Authorization': `Basic ${authString}`
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(midtransPayload)
     });
 
     const data = await response.json();

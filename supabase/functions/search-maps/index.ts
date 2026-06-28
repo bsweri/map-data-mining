@@ -1,7 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://bsweri.github.io',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
@@ -11,7 +11,19 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { keyword, location, radius } = await req.json()
+    const payload = await req.json()
+    
+    if (typeof payload.keyword !== 'string' || payload.keyword.trim() === '' || payload.keyword.length > 100) {
+      return new Response(JSON.stringify({ error: "Keyword tidak valid atau terlalu panjang." }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (typeof payload.location !== 'string' || payload.location.trim() === '' || payload.location.length > 200) {
+      return new Response(JSON.stringify({ error: "Location tidak valid atau terlalu panjang." }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (typeof payload.radius !== 'number' || payload.radius < 1 || payload.radius > 50) {
+      return new Response(JSON.stringify({ error: "Radius harus berupa angka antara 1 hingga 50 KM." }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    
+    const { keyword, location, radius } = payload;
     const apiKey = Deno.env.get('MAPS_API_KEY')
 
     if (!apiKey) {

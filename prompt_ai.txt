@@ -1,0 +1,150 @@
+# ============================================================================
+# PROMPT AI - Smart Marketing Tools (Map Data Mining)
+# ============================================================================
+# Gunakan prompt ini sebagai konteks awal saat memulai sesi baru dengan AI
+# untuk melanjutkan pengembangan, debugging, atau penambahan fitur baru.
+# ============================================================================
+
+## IDENTITAS PROYEK
+
+Nama Aplikasi   : Smart Marketing Tools (Map Data Mining)
+Deskripsi       : Aplikasi web SPA (Single Page Application) untuk mengekstraksi
+                  data bisnis (nama, alamat, nomor telepon, rating, dan jarak)
+                  dari Google Maps berdasarkan keyword, lokasi/area, dan radius
+                  pencarian yang ditentukan pengguna. Hasil pencarian ditampilkan
+                  dalam tabel interaktif dan dapat diekspor ke file Excel (.xlsx).
+Pemilik         : Eriandi Susanto (@bsweri)
+URL Live        : https://bsweri.github.io/map-data-mining/
+URL Portofolio  : https://bsweri.github.io/
+Repository      : https://github.com/bsweri/map-data-mining
+
+
+## ARSITEKTUR & TEKNOLOGI
+
+### Frontend (Client-Side)
+- Framework       : React 19 + TypeScript
+- Build Tool      : Vite 8
+- Styling         : Tailwind CSS v4 (via @tailwindcss/vite plugin)
+- Icon Library    : Lucide React
+- Export Library  : SheetJS (xlsx) untuk ekspor data ke Excel
+- Hosting         : GitHub Pages (static site, SPA)
+- Base Path       : /map-data-mining/ (dikonfigurasi di vite.config.ts)
+- CI/CD           : GitHub Actions (.github/workflows/deploy.yml)
+                    Auto-deploy ke GitHub Pages setiap push ke branch main/master
+
+### Backend (Server-Side)
+- Platform        : Supabase Edge Functions (Deno runtime)
+- Project ID      : egtnncvpaznfdzwpbfse
+- Base URL        : https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/
+
+### Edge Functions yang sudah di-deploy:
+1. search-maps          : Menerima { keyword, location, radius } dari frontend.
+                          Melakukan geocoding (jika input berupa nama area) atau
+                          parsing koordinat langsung. Memanggil Google Maps
+                          Nearby Search API, lalu Google Place Details API untuk
+                          mendapatkan nomor telepon. Menghitung jarak Haversine
+                          dari titik pusat. Mengembalikan array data lokasi bisnis.
+                          
+2. create-midtrans-transaction : Menerima { amount } dari frontend.
+                          Membuat order ID unik, memanggil Midtrans Snap API
+                          (Production) untuk mendapatkan snap token. Mengembalikan
+                          { token, redirect_url } ke frontend. Di-deploy dengan
+                          flag --no-verify-jwt (akses publik tanpa autentikasi).
+
+### Environment Variables / Secrets (di Supabase):
+- MAPS_API_KEY          : Google Maps Platform API Key (Geocoding + Places)
+- MIDTRANS_SERVER_KEY   : Midtrans Production Server Key (RAHASIA, tidak boleh
+                          di-expose ke frontend)
+
+### Third-Party Integrations:
+1. Google Maps Platform : Geocoding API, Places Nearby Search, Place Details
+2. Google AdSense       : Publisher ID ca-pub-8469280245924820
+                          Slot Atas: 2121996370 | Slot Bawah: 4773612818
+                          Status: Getting ready (menunggu approval Google)
+3. Midtrans Snap        : Payment Gateway untuk fitur donasi
+                          Client Key: Mid-client-eRHqgBnpJOA9jVM8 (di index.html)
+                          Environment: Production (app.midtrans.com)
+                          Status: Menunggu aktivasi payment channels dari Midtrans
+
+
+## STRUKTUR FILE PENTING
+
+```
+LookinMaps/
+├── .github/workflows/
+│   └── deploy.yml                  # CI/CD: auto build & deploy ke GitHub Pages
+├── src/
+│   ├── main.tsx                    # Entry point React
+│   ├── App.tsx                     # Root component: state management, layout utama,
+│   │                               # penempatan AdSense banner atas & bawah
+│   ├── App.css                     # Global styles
+│   ├── index.css                   # Tailwind base imports
+│   ├── types.ts                    # TypeScript interfaces (MapPlace) & global
+│   │                               # Window type declarations (snap, adsbygoogle)
+│   └── components/
+│       ├── Header.tsx              # Header bar dengan judul "Smart Marketing Tools"
+│       ├── SearchForm.tsx          # Form pencarian (keyword, lokasi, radius slider)
+│       │                           # + Deteksi GPS + Form Donasi Midtrans
+│       ├── DataGrid.tsx            # Tabel hasil pencarian (nama, alamat, telepon,
+│       │                           # zona radius, link Google Maps)
+│       ├── ExportButton.tsx        # Tombol ekspor data ke file Excel (.xlsx)
+│       └── AdSenseBanner.tsx       # Komponen wrapper Google AdSense ad unit
+├── supabase/functions/
+│   ├── search-maps/index.ts        # Edge Function: pencarian Google Maps
+│   └── create-midtrans-transaction/
+│       └── index.ts                # Edge Function: pembuatan transaksi Midtrans
+├── index.html                      # HTML entry: memuat script AdSense & Midtrans Snap
+├── vite.config.ts                  # Konfigurasi Vite (base path, plugins)
+├── package.json                    # Dependencies & scripts
+└── tsconfig.*.json                 # TypeScript configurations
+```
+
+
+## ALUR KERJA APLIKASI (USER FLOW)
+
+1. Pengguna membuka https://bsweri.github.io/map-data-mining/
+2. Pengguna memasukkan keyword bisnis (misal: "Apotek"), lokasi/area (misal:
+   "Jakarta Selatan" atau menggunakan tombol GPS untuk deteksi otomatis), dan
+   mengatur radius pencarian (1-50 KM) menggunakan slider.
+3. Pengguna menekan tombol "Cari Lokasi".
+4. Frontend mengirim POST request ke Supabase Edge Function `search-maps`.
+5. Edge Function melakukan geocoding lokasi (jika perlu), memanggil Google Maps
+   Nearby Search API, lalu mengambil detail telepon dari Place Details API.
+6. Data dikembalikan ke frontend dan ditampilkan dalam tabel interaktif.
+7. Pengguna dapat mengekspor seluruh data ke file Excel (.xlsx).
+8. Pengguna dapat membuka lokasi langsung di Google Maps via kolom "Aksi".
+9. Pengguna dapat memberikan donasi via tombol "Dukung Aplikasi Ini" yang
+   memunculkan pop-up pembayaran Midtrans Snap.
+
+
+## FITUR KEAMANAN & PROTEKSI KONTEN
+
+- Copy-paste di-disable pada level root component (onCopy, onPaste preventDefault)
+- Text selection di-disable (select-none CSS class)
+- Server Key Midtrans tersimpan aman di Supabase Secrets (tidak pernah di-expose)
+- Google Maps API Key tersimpan aman di Supabase Secrets (tidak pernah di-expose)
+
+
+## MONETISASI
+
+1. Google AdSense        : Banner iklan di atas dan bawah konten utama
+2. Midtrans Donation     : Tombol donasi sukarela (min. Rp 10.000)
+
+
+## CATATAN PENTING UNTUK AI
+
+- Jangan pernah mengubah base path di vite.config.ts (/map-data-mining/)
+  kecuali diminta secara eksplisit oleh pemilik.
+- Jangan pernah membuat workflow file baru di .github/workflows/ selain
+  deploy.yml yang sudah ada, karena dapat menyebabkan konflik deployment.
+- Semua perintah git di terminal Windows harus menggunakan cmd.exe /c "..."
+  atau PowerShell semicolon (;) sebagai separator, BUKAN && (tidak didukung
+  di PowerShell versi lama).
+- Untuk menjalankan npm di terminal, gunakan cmd.exe /c "npm ..." jika
+  PowerShell menolak eksekusi script.
+- Supabase Edge Functions di-deploy menggunakan:
+  npx supabase functions deploy <nama-fungsi> --no-verify-jwt
+- Frontend tidak menggunakan development lokal (localhost). Semua perubahan
+  langsung di-push ke GitHub dan otomatis ter-deploy via GitHub Actions.
+- Pastikan setiap perubahan kode lolos TypeScript build (tsc -b) sebelum push,
+  karena GitHub Actions akan gagal jika ada error TypeScript.
