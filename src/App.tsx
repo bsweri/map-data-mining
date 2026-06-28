@@ -52,7 +52,7 @@ export default function App() {
       
       {/* Iklan Atas (Top Banner) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <AdSenseBanner className="mb-2" slot="1111111111" />
+        <AdSenseBanner className="mb-2" slot="2121996370" />
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
@@ -72,7 +72,7 @@ export default function App() {
             {/* Iklan Bawah (Bottom Banner) - Muncul jika data berhasil di-load */}
             {data.length > 0 && (
               <div className="mt-8">
-                <AdSenseBanner slot="2222222222" />
+                <AdSenseBanner slot="4773612818" />
               </div>
             )}
           </>
