@@ -10,6 +10,9 @@ export interface MapPlace {
 
 declare global {
   interface Window {
+    snap: {
+      pay: (token: string, options?: any) => void;
+    };
     adsbygoogle: any[];
   }
 }

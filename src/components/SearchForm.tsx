@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MapPin, Navigation, Crosshair } from 'lucide-react';
+import { Search, MapPin, Navigation, Crosshair, Heart, Coffee } from 'lucide-react';
 
 interface SearchFormProps {
   onSearch: (keyword: string, location: string, radius: number) => void;
@@ -11,6 +11,8 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   const [location, setLocation] = useState('');
   const [radius, setRadius] = useState<number>(5);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [donationAmount, setDonationAmount] = useState<string>('10000');
+  const [isDonating, setIsDonating] = useState(false);
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
@@ -37,6 +39,45 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
     e.preventDefault();
     if (keyword && location && radius) {
       onSearch(keyword, location, radius);
+    }
+  };
+
+  const handleDonation = async () => {
+    const amountStr = donationAmount.replace(/\D/g, '');
+    const amount = parseInt(amountStr, 10);
+    if (!amount || amount < 10000) {
+      alert('Minimal donasi adalah Rp 10.000');
+      return;
+    }
+
+    setIsDonating(true);
+    try {
+      const response = await fetch('https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/create-midtrans-transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Gagal membuat transaksi');
+
+      window.snap.pay(data.token, {
+        onSuccess: function(result: any) {
+          alert('Terima kasih banyak atas donasi Anda! 💖');
+        },
+        onPending: function(result: any) {
+          alert('Menunggu pembayaran donasi Anda diselesaikan.');
+        },
+        onError: function(result: any) {
+          alert('Pembayaran donasi gagal. Silakan coba lagi.');
+        },
+        onClose: function() {
+          setIsDonating(false);
+        }
+      });
+    } catch (err: any) {
+      alert(err.message || 'Terjadi kesalahan sistem.');
+      setIsDonating(false);
     }
   };
 
@@ -145,6 +186,52 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           </button>
         </div>
       </form>
+
+      {/* Bagian Donasi */}
+      <div className="mt-8 pt-6 border-t border-slate-100">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center shrink-0">
+              <Heart className="w-5 h-5 fill-current" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-slate-800">Dukung Aplikasi Ini</h3>
+              <p className="text-xs text-slate-500">Bantu kami mempertahankan dan mengembangkan fitur baru.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative w-full md:w-32 shrink-0">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-medium">Rp</span>
+              <input 
+                type="text" 
+                value={donationAmount}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, '');
+                  setDonationAmount(val);
+                }}
+                className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="10000"
+              />
+            </div>
+            <button 
+              type="button"
+              onClick={handleDonation}
+              disabled={isDonating || parseInt(donationAmount || '0') < 10000}
+              className="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {isDonating ? (
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <Coffee className="w-4 h-4" />
+              )}
+              Donasi
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
