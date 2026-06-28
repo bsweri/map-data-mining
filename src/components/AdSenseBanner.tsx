@@ -10,7 +10,7 @@ interface AdSenseBannerProps {
 
 export default function AdSenseBanner({
   className = '',
-  client = 'ca-pub-XXXXXXXXXXXXXXXX', // Ganti dengan Client ID asli jika sudah ada
+  client = 'ca-pub-8469280245924820', // Ganti dengan Client ID asli jika sudah ada
   slot = '1234567890',              // Ganti dengan Ad Slot ID asli jika sudah ada
   format = 'auto',
   responsive = true
