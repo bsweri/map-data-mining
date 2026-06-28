@@ -189,17 +189,17 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
       {/* Bagian Donasi */}
       <div className="mt-8 pt-6 border-t border-slate-100">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-orange-50/50 p-4 rounded-xl border border-orange-100">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-orange-50/50 p-4 md:p-5 rounded-xl border border-orange-100">
+          <div className="flex items-start md:items-center gap-3 w-full">
             <div className="w-10 h-10 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center shrink-0">
               <Heart className="w-5 h-5 fill-current" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-800">Dukung Aplikasi Ini</h3>
-              <p className="text-xs text-slate-500">Bantu kami mempertahankan dan mengembangkan fitur baru.</p>
+              <p className="text-xs text-slate-500 leading-relaxed">Bantu kami mempertahankan dan mengembangkan fitur baru.</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto shrink-0">
             <div className="relative w-full md:w-32 shrink-0">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-medium">Rp</span>
               <input 
