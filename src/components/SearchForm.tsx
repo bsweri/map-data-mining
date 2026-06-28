@@ -62,13 +62,13 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       if (!response.ok) throw new Error(data.error || 'Gagal membuat transaksi');
 
       window.snap.pay(data.token, {
-        onSuccess: function(result: any) {
+        onSuccess: function() {
           alert('Terima kasih banyak atas donasi Anda! 💖');
         },
-        onPending: function(result: any) {
+        onPending: function() {
           alert('Menunggu pembayaran donasi Anda diselesaikan.');
         },
-        onError: function(result: any) {
+        onError: function() {
           alert('Pembayaran donasi gagal. Silakan coba lagi.');
         },
         onClose: function() {
