@@ -156,7 +156,7 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               type="range"
               id="radius"
               min="1"
-              max="50"
+              max="4"
               step="1"
               className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
               value={radius}

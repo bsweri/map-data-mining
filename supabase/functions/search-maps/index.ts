@@ -19,8 +19,8 @@ Deno.serve(async (req) => {
     if (typeof payload.location !== 'string' || payload.location.trim() === '' || payload.location.length > 200) {
       return new Response(JSON.stringify({ error: "Location tidak valid atau terlalu panjang." }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-    if (typeof payload.radius !== 'number' || payload.radius < 1 || payload.radius > 50) {
-      return new Response(JSON.stringify({ error: "Radius harus berupa angka antara 1 hingga 50 KM." }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (typeof payload.radius !== 'number' || payload.radius < 1 || payload.radius > 4) {
+      return new Response(JSON.stringify({ error: "Radius harus berupa angka antara 1 hingga 4 KM." }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     
     const { keyword, location, radius } = payload;
