@@ -11,7 +11,7 @@ export default function Header() {
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-800">Map Data Mining</h1>
         </div>
         <div className="hidden sm:block text-sm text-blue-500 font-semibold bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-          Frontend App
+          Smart Marketing Tools
         </div>
       </div>
     </header>
