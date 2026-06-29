@@ -1,6 +1,7 @@
 import { Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import type { MapPlace } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface ExportButtonProps {
   data: MapPlace[];
@@ -8,17 +9,19 @@ interface ExportButtonProps {
 }
 
 export default function ExportButton({ data, keyword }: ExportButtonProps) {
+  const { t } = useTranslation();
+
   const handleExport = () => {
     if (data.length === 0) return;
 
     // Persiapkan data untuk Excel
     const exportData = data.map((item, index) => ({
-      No: index + 1,
-      'Nama Lokasi / Tempat': item.name,
-      'Alamat Lengkap': item.address,
-      'No Telepon': item.phone || '-',
-      'Zona Radius': item.radiusZone,
-      'Link Google Maps': item.mapsLink,
+      [t('results.no')]: index + 1,
+      [t('results.name')]: item.name,
+      [t('results.address')]: item.address,
+      [t('results.phone')]: item.phone || '-',
+      [t('results.radius_zone')]: item.radiusZone,
+      [t('results.maps')]: item.mapsLink,
     }));
 
     // Buat workbook & worksheet
@@ -36,7 +39,7 @@ export default function ExportButton({ data, keyword }: ExportButtonProps) {
     ];
     worksheet['!cols'] = wscols;
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Hasil Pencarian');
+    XLSX.utils.book_append_sheet(workbook, worksheet, t('results.title'));
 
     // Generate filename
     const safeKeyword = keyword.replace(/[^a-z0-9]/gi, '_').toLowerCase();
@@ -55,7 +58,7 @@ export default function ExportButton({ data, keyword }: ExportButtonProps) {
       className="mt-6 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-sm transition-all hover:shadow focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 ml-auto"
     >
       <Download size={18} />
-      Export ke Excel
+      {t('export.button')}
     </button>
   );
 }

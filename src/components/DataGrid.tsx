@@ -1,20 +1,23 @@
 import type { MapPlace } from '../types';
 import { ExternalLink, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface DataGridProps {
   data: MapPlace[];
 }
 
 export default function DataGrid({ data }: DataGridProps) {
+  const { t } = useTranslation();
+
   if (data.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center mt-6">
         <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-400">
           <MapPin size={40} />
         </div>
-        <h3 className="text-lg font-medium text-slate-800 mb-1">Belum ada data</h3>
+        <h3 className="text-lg font-medium text-slate-800 mb-1">{t('results.empty_title')}</h3>
         <p className="text-slate-500 max-w-md mx-auto">
-          Silakan gunakan form pencarian di atas untuk mulai mencari data lokasi bisnis dari Google Maps.
+          {t('results.empty_desc')}
         </p>
       </div>
     );
@@ -24,7 +27,7 @@ export default function DataGrid({ data }: DataGridProps) {
     <div className="mt-6 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
         <h3 className="text-lg font-semibold text-slate-800">
-          Hasil Pencarian <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{data.length} lokasi</span>
+          {t('results.title')} <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{data.length} {t('results.locations')}</span>
         </h3>
       </div>
       
@@ -33,22 +36,22 @@ export default function DataGrid({ data }: DataGridProps) {
           <thead className="bg-slate-50">
             <tr>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                No
+                {t('results.no')}
               </th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Nama Lokasi / Tempat
+                {t('results.name')}
               </th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Alamat Lengkap
+                {t('results.address')}
               </th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                No Telepon
+                {t('results.phone')}
               </th>
               <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Zona Radius
+                {t('results.radius_zone')}
               </th>
               <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                Aksi
+                {t('results.action')}
               </th>
             </tr>
           </thead>
@@ -79,7 +82,7 @@ export default function DataGrid({ data }: DataGridProps) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
                   >
-                    Buka <ExternalLink size={14} />
+                    {t('results.open')} <ExternalLink size={14} />
                   </a>
                 </td>
               </tr>

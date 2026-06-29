@@ -1,0 +1,49 @@
+{
+  "header": {
+    "title": "LookinMaps",
+    "login": "Masuk",
+    "register": "Daftar",
+    "logout": "Keluar",
+    "dashboard": "Dasbor"
+  },
+  "search": {
+    "title": "Mulai Pencarian Data",
+    "keyword": "Nama Bisnis / Keyword",
+    "keyword_placeholder": "Contoh: Kopi, Apotek...",
+    "location": "Area / Titik Pusat",
+    "location_placeholder": "Contoh: Jakarta Selatan",
+    "use_my_location": "Gunakan lokasi saya",
+    "radius": "Radius (KM)",
+    "button": "Cari Lokasi",
+    "loading": "Mencari Data...",
+    "donation_title": "Dukung Aplikasi Ini",
+    "donation_desc": "Bantu kami mempertahankan dan mengembangkan fitur baru.",
+    "donation_button": "Donasi",
+    "donation_min": "Minimal donasi adalah Rp 10.000",
+    "donation_thanks": "Terima kasih banyak atas donasi Anda! 💖",
+    "donation_pending": "Menunggu pembayaran donasi Anda diselesaikan.",
+    "donation_fail": "Pembayaran donasi gagal. Silakan coba lagi.",
+    "error_geo": "Geolokasi tidak didukung oleh browser Anda.",
+    "error_geo_fail": "Gagal mendapatkan lokasi. Pastikan izin geolokasi diaktifkan."
+  },
+  "results": {
+    "title": "Hasil Pencarian",
+    "locations": "lokasi",
+    "no": "No",
+    "name": "Nama Lokasi / Tempat",
+    "address": "Alamat Lengkap",
+    "rating": "Peringkat",
+    "reviews": "Ulasan",
+    "phone": "No Telepon",
+    "website": "Situs Web",
+    "radius_zone": "Zona Radius",
+    "action": "Aksi",
+    "open": "Buka",
+    "maps": "Google Maps",
+    "empty_title": "Belum ada data",
+    "empty_desc": "Silakan gunakan form pencarian di atas untuk mulai mencari data lokasi bisnis dari Google Maps."
+  },
+  "export": {
+    "button": "Ekspor ke Excel"
+  }
+}

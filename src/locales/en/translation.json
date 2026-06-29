@@ -1,0 +1,49 @@
+{
+  "header": {
+    "title": "LookinMaps",
+    "login": "Login",
+    "register": "Sign Up",
+    "logout": "Logout",
+    "dashboard": "Dashboard"
+  },
+  "search": {
+    "title": "Start Data Search",
+    "keyword": "Business Name / Keyword",
+    "keyword_placeholder": "Example: Coffee, Pharmacy...",
+    "location": "Area / Center Point",
+    "location_placeholder": "Example: South Jakarta",
+    "use_my_location": "Use my location",
+    "radius": "Radius (KM)",
+    "button": "Search Location",
+    "loading": "Searching Data...",
+    "donation_title": "Support This App",
+    "donation_desc": "Help us maintain and develop new features.",
+    "donation_button": "Donate",
+    "donation_min": "Minimum donation is Rp 10.000",
+    "donation_thanks": "Thank you so much for your donation! 💖",
+    "donation_pending": "Waiting for your donation payment to complete.",
+    "donation_fail": "Donation payment failed. Please try again.",
+    "error_geo": "Geolocation is not supported by your browser.",
+    "error_geo_fail": "Failed to get location. Ensure geolocation permission is enabled."
+  },
+  "results": {
+    "title": "Search Results",
+    "locations": "locations",
+    "no": "No",
+    "name": "Location / Place Name",
+    "address": "Full Address",
+    "rating": "Rating",
+    "reviews": "Reviews",
+    "phone": "Phone Number",
+    "website": "Website",
+    "radius_zone": "Radius Zone",
+    "action": "Action",
+    "open": "Open",
+    "maps": "Google Maps",
+    "empty_title": "No data yet",
+    "empty_desc": "Please use the search form above to start searching for business location data from Google Maps."
+  },
+  "export": {
+    "button": "Export to Excel"
+  }
+}
