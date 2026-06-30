@@ -10,7 +10,7 @@ interface SearchFormProps {
 export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
-  const [radius, setRadius] = useState<number>(5);
+  const [radius, setRadius] = useState<number>(3);
   const [isDetecting, setIsDetecting] = useState(false);
   const [donationAmount, setDonationAmount] = useState<string>('10000');
   const [isDonating, setIsDonating] = useState(false);
