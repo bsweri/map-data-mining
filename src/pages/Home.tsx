@@ -70,7 +70,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-12">
+    <div className="min-h-screen bg-background text-on-background font-sans pb-12">
       <Header />
       
       {/* Iklan Atas (Top Banner) */}
