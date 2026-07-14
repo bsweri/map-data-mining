@@ -84,25 +84,25 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8 transition-all hover:shadow-md">
-      <h2 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
-        <Search className="text-blue-500" size={24} />
+    <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant p-6 md:p-8 transition-all hover:shadow-md">
+      <h2 className="text-xl font-semibold text-on-surface mb-6 flex items-center gap-2">
+        <Search className="text-primary" size={24} />
         {t('search.title')}
       </h2>
       
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-5">
         <div className="md:col-span-4 space-y-2">
-          <label htmlFor="keyword" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="keyword" className="block text-sm font-medium text-on-surface-variant">
             {t('search.keyword')}
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-slate-400" />
+              <Search className="h-5 w-5 text-outline" />
             </div>
             <input
               type="text"
               id="keyword"
-              className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-800"
+              className="block w-full pl-10 pr-3 py-3 border border-outline-variant rounded-xl bg-surface-variant focus:bg-surface focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-on-surface"
               placeholder={t('search.keyword_placeholder')}
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
@@ -112,17 +112,17 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         </div>
 
         <div className="md:col-span-5 space-y-2">
-          <label htmlFor="location" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="location" className="block text-sm font-medium text-on-surface-variant">
             {t('search.location')}
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPin className="h-5 w-5 text-slate-400" />
+              <MapPin className="h-5 w-5 text-outline" />
             </div>
             <input
               type="text"
               id="location"
-              className="block w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-slate-800"
+              className="block w-full pl-10 pr-12 py-3 border border-outline-variant rounded-xl bg-surface-variant focus:bg-surface focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-on-surface"
               placeholder={t('search.location_placeholder')}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
@@ -132,7 +132,7 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               type="button"
               onClick={handleDetectLocation}
               disabled={isDetecting}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-blue-500 hover:text-blue-700 disabled:opacity-50 transition-colors"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-primary hover:text-primary-container disabled:opacity-50 transition-colors"
               title={t('search.use_my_location')}
             >
               {isDetecting ? (
@@ -148,19 +148,19 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
         </div>
 
         <div className="md:col-span-3 space-y-2">
-          <label htmlFor="radius" className="block text-sm font-medium text-slate-700 flex justify-between">
+          <label htmlFor="radius" className="block text-sm font-medium text-on-surface-variant flex justify-between">
             <span>{t('search.radius')}</span>
-            <span className="text-blue-600 font-bold">{radius} KM</span>
+            <span className="text-primary font-bold">{radius} KM</span>
           </label>
-          <div className="relative flex items-center h-[50px] px-2 bg-slate-50 border border-slate-200 rounded-xl focus-within:ring-2 focus-within:ring-blue-500">
-            <Navigation className="h-5 w-5 text-slate-400 mr-2" />
+          <div className="relative flex items-center h-[50px] px-2 bg-surface-variant border border-outline-variant rounded-xl focus-within:ring-2 focus-within:ring-primary">
+            <Navigation className="h-5 w-5 text-outline mr-2" />
             <input
               type="range"
               id="radius"
               min="1"
               max="4"
               step="1"
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-2 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-primary"
               value={radius}
               onChange={(e) => setRadius(Number(e.target.value))}
               required
@@ -172,7 +172,7 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
           <button
             type="submit"
             disabled={isLoading || !keyword || !location}
-            className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all"
+            className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-on-primary bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-surface-variant disabled:text-outline disabled:cursor-not-allowed transition-all"
           >
             {isLoading ? (
               <>

@@ -82,22 +82,22 @@ export default function PricingPackages() {
   }
 
   return (
-    <div className="py-12 bg-white rounded-3xl shadow-sm border border-slate-100 my-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div className="py-12 bg-surface rounded-3xl shadow-sm border border-outline-variant my-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">Upgrade Paket Anda</h2>
-        <p className="mt-4 text-lg text-slate-600">Dapatkan akses pencarian tanpa batas dan fitur eksklusif lainnya dengan berlangganan.</p>
+        <h2 className="text-3xl font-bold text-on-surface sm:text-4xl">Upgrade Paket Anda</h2>
+        <p className="mt-4 text-lg text-on-surface-variant">Dapatkan akses pencarian tanpa batas dan fitur eksklusif lainnya dengan berlangganan.</p>
       </div>
 
       <div className="flex justify-center mb-10">
-        <div className="inline-flex bg-slate-100 p-1 rounded-xl">
+        <div className="inline-flex bg-surface-variant p-1 rounded-xl">
           {PERIODS.map(p => (
             <button
               key={p.value}
               onClick={() => setPeriod(p.value)}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                 period === p.value 
-                  ? 'bg-white text-blue-600 shadow-sm' 
-                  : 'text-slate-500 hover:text-slate-700'
+                  ? 'bg-surface text-primary shadow-sm' 
+                  : 'text-outline hover:text-on-surface-variant'
               }`}
             >
               {p.label}
@@ -113,23 +113,23 @@ export default function PricingPackages() {
           const finalPrice = (basePrice * period) * (1 - discount / 100);
 
           return (
-            <div key={plan.id} className="relative bg-white border border-slate-200 rounded-2xl p-8 shadow-sm flex flex-col hover:border-blue-500 hover:shadow-md transition-all">
+            <div key={plan.id} className="relative bg-surface border border-outline-variant rounded-2xl p-8 shadow-sm flex flex-col hover:border-primary hover:shadow-md transition-all">
               {discount > 0 && (
                 <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4">
-                  <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">
+                  <span className="bg-error text-on-error text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">
                     Hemat {discount}%
                   </span>
                 </div>
               )}
               
               <div className="mb-6">
-                <h3 className="text-xl font-bold text-slate-900 capitalize">{plan.level}</h3>
-                <div className="mt-4 flex items-baseline text-4xl font-extrabold text-slate-900">
+                <h3 className="text-xl font-bold text-on-surface capitalize">{plan.level}</h3>
+                <div className="mt-4 flex items-baseline text-4xl font-extrabold text-on-surface">
                   {formatPrice(finalPrice)}
-                  <span className="ml-1 text-xl font-medium text-slate-500">/{period > 1 ? `${period} bln` : 'bln'}</span>
+                  <span className="ml-1 text-xl font-medium text-on-surface-variant">/{period > 1 ? `${period} bln` : 'bln'}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="mt-1 text-sm text-slate-400 line-through">
+                  <div className="mt-1 text-sm text-outline line-through">
                     {formatPrice(basePrice * period)}
                   </div>
                 )}
@@ -137,23 +137,23 @@ export default function PricingPackages() {
 
               <ul className="mt-6 space-y-4 flex-1">
                 <li className="flex gap-3">
-                  <Check className="w-5 h-5 text-blue-500 shrink-0" />
-                  <span className="text-slate-600 text-sm">Batas Harian: <strong>{plan.daily_api_quota}</strong> request</span>
+                  <Check className="w-5 h-5 text-primary shrink-0" />
+                  <span className="text-on-surface-variant text-sm">Batas Harian: <strong>{plan.daily_api_quota}</strong> request</span>
                 </li>
                 <li className="flex gap-3">
-                  <Check className="w-5 h-5 text-blue-500 shrink-0" />
-                  <span className="text-slate-600 text-sm">Batas Bulanan: <strong>{plan.monthly_api_quota}</strong> request</span>
+                  <Check className="w-5 h-5 text-primary shrink-0" />
+                  <span className="text-on-surface-variant text-sm">Batas Bulanan: <strong>{plan.monthly_api_quota}</strong> request</span>
                 </li>
                 <li className="flex gap-3">
-                  <Check className="w-5 h-5 text-blue-500 shrink-0" />
-                  <span className="text-slate-600 text-sm">Akses penuh ke pencarian Google Maps</span>
+                  <Check className="w-5 h-5 text-primary shrink-0" />
+                  <span className="text-on-surface-variant text-sm">Akses penuh ke pencarian Google Maps</span>
                 </li>
               </ul>
 
               <button
                 onClick={() => handleSubscribe(plan)}
-                className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-xl text-center text-sm font-semibold text-white transition-colors ${
-                  plan.level === 'platinum' ? 'bg-slate-900 hover:bg-slate-800' : 'bg-blue-600 hover:bg-blue-700'
+                className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-xl text-center text-sm font-semibold transition-colors ${
+                  plan.level === 'platinum' ? 'bg-inverse-surface text-inverse-on-surface hover:bg-inverse-surface/90' : 'bg-primary text-on-primary hover:bg-primary/90'
                 }`}
               >
                 Pilih {plan.level}
