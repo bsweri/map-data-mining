@@ -1,15 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #3b82f6;
-  --color-primary-dark: #2563eb;
-  --color-background: #f8fafc;
+  --font-hanken: 'Hanken Grotesk', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  
+  --color-primary: #004ac6;
+  --color-primary-container: #2563eb;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #eeefff;
+  
+  --color-secondary: #505f76;
+  --color-secondary-container: #d0e1fb;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #54647a;
+  
+  --color-tertiary: #005a82;
+  --color-tertiary-container: #0074a6;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #e4f2ff;
+
+  --color-background: #f7f9fb;
+  --color-on-background: #191c1e;
+  
+  --color-surface: #f7f9fb;
+  --color-on-surface: #191c1e;
+  --color-surface-variant: #e0e3e5;
+  --color-on-surface-variant: #434655;
+  
+  --color-outline: #737686;
+  --color-outline-variant: #c3c6d7;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
 }
 
 @layer base {
   body {
     background-color: var(--color-background);
-    color: #1e293b;
-    font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+    color: var(--color-on-background);
+    font-family: var(--font-inter);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-hanken);
   }
 }
