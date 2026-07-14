@@ -1,8 +1,4 @@
-import { useTranslation } from 'react-i18next';
-
 export default function Footer() {
-  const { t } = useTranslation();
-
   return (
     <footer className="bg-surface-container-lowest border-t border-outline-variant mt-auto">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-gutter py-margin-desktop max-w-container-max mx-auto">

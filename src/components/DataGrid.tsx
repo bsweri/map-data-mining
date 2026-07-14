@@ -1,5 +1,5 @@
 import type { MapPlace } from '../types';
-import { ExternalLink, MapPin, Phone, Star, Map as MapIcon } from 'lucide-react';
+import { MapPin, Phone, Star, Map as MapIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface DataGridProps {
@@ -26,7 +26,7 @@ export default function DataGrid({ data }: DataGridProps) {
   return (
     <div className="mt-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {data.map((place, index) => (
+        {data.map((place) => (
           <div key={place.id} className="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-3">
               <h4 className="font-inter text-sm text-primary font-bold">{place.name}</h4>

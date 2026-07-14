@@ -1,4 +1,4 @@
-import { MapPinned, LogIn, LogOut, User } from 'lucide-react';
+import { MapPinned, LogOut, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
