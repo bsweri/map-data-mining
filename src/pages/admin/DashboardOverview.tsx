@@ -2,19 +2,15 @@ import { useState, useEffect } from 'react';
 import { 
   Users, 
   Activity, 
-  Target, 
   ShieldCheck, 
   Database, 
-  Lock, 
   RefreshCw, 
   Download, 
   Globe, 
   Settings, 
   Search, 
   MoreVertical,
-  CheckCircle,
-  HelpCircle,
-  AlertTriangle
+  CheckCircle
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';

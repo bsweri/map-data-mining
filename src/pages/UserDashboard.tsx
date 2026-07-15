@@ -21,8 +21,6 @@ import {
   Phone, 
   Star, 
   Map, 
-  AlertTriangle, 
-  CheckCircle,
   ExternalLink
 } from 'lucide-react';
 
