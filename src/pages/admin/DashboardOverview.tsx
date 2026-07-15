@@ -18,10 +18,11 @@ export default function DashboardOverview() {
     async function fetchStats() {
       setIsLoading(true);
       
-      // Get all profiles
+      // Get all user profiles (excluding admins)
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('current_membership');
+        .select('current_membership, role')
+        .eq('role', 'user');
 
       const membershipCounts: Record<string, number> = {
         free: 0, silver: 0, gold: 0, platinum: 0
@@ -81,7 +82,7 @@ export default function DashboardOverview() {
     { label: 'Total API Requests (Bulan Ini)', value: stats.monthlyApiRequests.toLocaleString(), icon: Activity, color: 'text-blue-500', bg: 'bg-blue-100' },
     { label: 'Total Paid Members', value: stats.totalMembers, icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-100' },
     { label: 'Total Free Users (Aktif)', value: stats.totalFreeUsers, icon: Users, color: 'text-slate-500', bg: 'bg-slate-100' },
-    { label: 'Total Registered Accounts', value: stats.totalUsers, icon: Target, color: 'text-purple-500', bg: 'bg-purple-100' },
+    { label: 'Total Registered Users', value: stats.totalUsers, icon: Target, color: 'text-purple-500', bg: 'bg-purple-100' },
   ];
 
   return (

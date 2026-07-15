@@ -30,7 +30,9 @@ export default function ManageUsers() {
     setIsLoading(false);
   }
 
-  const filteredUsers = filter === 'all' ? users : users.filter(u => u.current_membership === filter);
+  const filteredUsers = filter === 'all' 
+    ? users 
+    : users.filter(u => u.current_membership === filter && u.role === 'user');
 
   if (isLoading) return <div>Loading users...</div>;
 
@@ -69,17 +71,23 @@ export default function ManageUsers() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 capitalize">{user.role}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
-                      user.current_membership === 'platinum' ? 'bg-slate-800 text-slate-100' :
-                      user.current_membership === 'gold' ? 'bg-yellow-100 text-yellow-800' :
-                      user.current_membership === 'silver' ? 'bg-slate-200 text-slate-800' :
-                      'bg-blue-50 text-blue-600'
-                    }`}>
-                      {user.current_membership}
-                    </span>
+                    {user.role === 'admin' ? (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-slate-100 text-slate-400">
+                        N/A
+                      </span>
+                    ) : (
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
+                        user.current_membership === 'platinum' ? 'bg-slate-800 text-slate-100' :
+                        user.current_membership === 'gold' ? 'bg-yellow-100 text-yellow-800' :
+                        user.current_membership === 'silver' ? 'bg-slate-200 text-slate-800' :
+                        'bg-blue-50 text-blue-600'
+                      }`}>
+                        {user.current_membership}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                    {user.membership_expires_at ? new Date(user.membership_expires_at).toLocaleDateString() : '-'}
+                    {user.role === 'admin' ? '-' : (user.membership_expires_at ? new Date(user.membership_expires_at).toLocaleDateString() : '-')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                     {new Date(user.created_at).toLocaleDateString()}
