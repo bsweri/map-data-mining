@@ -10,7 +10,7 @@ import type { MapPlace } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { hasExceededLocalQuota, getLocalQuota, incrementLocalQuota } from '../lib/quota';
-import { CreditCard, ShieldCheck } from 'lucide-react';
+import { CreditCard, ShieldCheck, Star, Phone, Map } from 'lucide-react';
 
 export default function Home() {
   const [data, setData] = useState<MapPlace[]>([]);
@@ -73,7 +73,7 @@ export default function Home() {
     }
   };
 
-  const handleDonation = async () => {
+  const handlePayPalDonation = () => {
     const amountStr = donationAmount.replace(/\D/g, '');
     const amount = parseInt(amountStr, 10);
     if (!amount || amount < 10000) {
@@ -82,34 +82,10 @@ export default function Home() {
     }
 
     setIsDonating(true);
-    try {
-      const response = await fetch('https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/create-midtrans-transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount }),
-      });
-
-      const resultData = await response.json();
-      if (!response.ok) throw new Error(resultData.error || 'Gagal membuat transaksi');
-
-      (window as any).snap.pay(resultData.token, {
-        onSuccess: function() {
-          alert('Terima kasih atas dukungan Anda!');
-        },
-        onPending: function() {
-          alert('Menunggu pembayaran Anda diselesaikan.');
-        },
-        onError: function() {
-          alert('Pembayaran gagal. Silakan coba lagi.');
-        },
-        onClose: function() {
-          setIsDonating(false);
-        }
-      });
-    } catch (err: any) {
-      alert(err.message || 'Terjadi kesalahan sistem.');
+    setTimeout(() => {
+      alert(`Simulasi Donasi: Pembayaran Rp ${amount.toLocaleString('id-ID')} melalui PayPal berhasil! Terima kasih atas dukungan Anda.`);
       setIsDonating(false);
-    }
+    }, 1500);
   };
 
   return (
@@ -165,6 +141,68 @@ export default function Home() {
                 </div>
               )}
 
+              {!error && data.length === 0 && !isLoading && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <h3 className="font-hanken text-2xl font-bold text-on-surface">Mock Extraction Preview</h3>
+                      <p className="text-on-surface-variant text-sm mt-1">Visualizing live sample data from the last global extraction.</p>
+                    </div>
+                    <span className="font-inter text-xs px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-medium">
+                      Showing 2 of 142 results
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Mock Card 1 */}
+                    <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-inter text-sm font-bold text-primary">The Roasting Point</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-tighter bg-surface-container-high px-2 py-0.5 rounded text-on-surface">Active</span>
+                      </div>
+                      <p className="text-sm text-on-surface-variant mb-4 truncate">Jl. Senopati No. 42, Kebayoran Baru, Jakarta</p>
+                      <div className="flex items-center gap-4 text-outline mb-4">
+                        <div className="flex items-center gap-1 text-xs">
+                          <Star size={14} className="fill-amber-400 stroke-amber-400" />
+                          <span>4.8</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs">
+                          <Phone size={14} />
+                          <span>+62 21 555 0192</span>
+                        </div>
+                      </div>
+                      <a className="text-primary font-inter text-xs font-semibold flex items-center gap-1 hover:underline" href="#">
+                        <Map size={14} />
+                        View on Google Maps
+                      </a>
+                    </div>
+                    
+                    {/* Mock Card 2 */}
+                    <div className="bg-surface-container-lowest border border-outline-variant p-5 rounded-xl hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-inter text-sm font-bold text-primary">Studio Caffeine</h4>
+                        <span className="text-[10px] font-bold uppercase tracking-tighter bg-surface-container-high px-2 py-0.5 rounded text-on-surface">Active</span>
+                      </div>
+                      <p className="text-sm text-on-surface-variant mb-4 truncate">Plaza Indonesia Level 3, Jakarta Pusat</p>
+                      <div className="flex items-center gap-4 text-outline mb-4">
+                        <div className="flex items-center gap-1 text-xs">
+                          <Star size={14} className="fill-amber-400 stroke-amber-400" />
+                          <span>4.5</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs">
+                          <Phone size={14} />
+                          <span>+62 21 777 0044</span>
+                        </div>
+                      </div>
+                      <a className="text-primary font-inter text-xs font-semibold flex items-center gap-1 hover:underline" href="#">
+                        <Map size={14} />
+                        View on Google Maps
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Sponsored Area (Mid-Content) */}
               <div className="mt-8">
                 <AdSenseBanner slot="4773612818" />
@@ -175,8 +213,8 @@ export default function Home() {
 
             {/* Sidebar (Right) */}
             <aside className="lg:col-span-4 space-y-8">
-              {/* Donation Component: Midtrans */}
-              <div className="bg-gradient-to-br from-primary/5 to-tertiary/10 border border-primary/20 p-8 rounded-xl relative overflow-hidden group shadow-sm">
+              {/* Donation Component: PayPal */}
+              <div className="bg-gradient-to-br from-primary/5 to-tertiary/10 border border-primary/20 p-8 rounded-xl relative overflow-hidden group shadow-sm hover:shadow-md transition-all">
                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all"></div>
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
@@ -185,7 +223,7 @@ export default function Home() {
                       Secure Payment
                     </span>
                   </div>
-                  <h3 className="font-hanken text-2xl font-bold text-on-surface mb-2">Support GeoExtract</h3>
+                  <h3 className="font-hanken text-2xl font-bold text-on-surface mb-2">Donate via PayPal</h3>
                   <p className="text-inter text-sm text-on-surface-variant mb-6">Support our server costs to keep GeoExtract free for basic users.</p>
                   
                   <div className="space-y-4">
@@ -200,12 +238,12 @@ export default function Home() {
                             const val = e.target.value.replace(/\D/g, '');
                             setDonationAmount(val);
                           }}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" 
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-surface-lowest text-on-surface" 
                         />
                       </div>
                     </div>
                     <button 
-                      onClick={handleDonation}
+                      onClick={handlePayPalDonation}
                       disabled={isDonating || parseInt(donationAmount || '0') < 10000}
                       className="w-full bg-primary text-on-primary font-inter text-sm font-medium py-4 rounded-xl hover:brightness-110 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:bg-surface-variant disabled:text-outline"
                     >
@@ -214,11 +252,11 @@ export default function Home() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                      ) : 'Donate with Midtrans'}
+                      ) : 'Pay with PayPal'}
                     </button>
                     <div className="flex justify-center items-center gap-4 grayscale opacity-60">
                       <CreditCard size={18} className="text-outline" />
-                      <span className="text-[10px] font-inter text-outline uppercase font-bold tracking-widest">GOPAY / OVO / QRIS / VA</span>
+                      <span className="text-[10px] font-inter text-outline uppercase font-bold tracking-widest">Visa / Mastercard / Amex</span>
                     </div>
                   </div>
                 </div>
