@@ -10,13 +10,17 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      navigate('/');
+    if (user && profile) {
+      if (profile.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     }
-  }, [user, navigate]);
+  }, [user, profile, navigate]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +35,6 @@ export default function Register() {
     if (error) {
       setError(error.message);
       setLoading(false);
-    } else {
-      // Typically wait for email confirmation, but we'll redirect for now
-      navigate('/');
     }
   };
 

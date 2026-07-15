@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import SearchForm from '../components/SearchForm';
 import DataGrid from '../components/DataGrid';
@@ -21,6 +22,17 @@ export default function Home() {
   const [donationAmount, setDonationAmount] = useState<string>('50000');
   const [isDonating, setIsDonating] = useState(false);
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && profile) {
+      if (profile.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [user, profile, navigate]);
 
   const handleSearch = async (keyword: string, location: string, radius: number) => {
     // 1. Client-side Quota Check for Free Users

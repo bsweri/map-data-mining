@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import UserDashboard from './pages/UserDashboard';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import DashboardOverview from './pages/admin/DashboardOverview';
@@ -16,6 +17,7 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
       
       {/* Rute Administrator (Hanya bisa diakses jika role == admin) */}
       <Route path="/admin" element={<ProtectedRoute requireAdmin={true}><AdminLayout /></ProtectedRoute>}>
