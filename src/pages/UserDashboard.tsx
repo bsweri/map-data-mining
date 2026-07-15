@@ -26,7 +26,8 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  Filter
+  Filter,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function UserDashboard() {
@@ -491,8 +492,12 @@ export default function UserDashboard() {
           {/* Results Section */}
           <section className="mb-8">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-xl shadow-sm mb-6">
-                <p className="font-medium">{error}</p>
+              <div className="bg-error-container border-l-4 border-error text-on-error-container p-4 rounded-r-xl shadow-sm mb-6 flex items-start gap-3 animate-fade-in-up">
+                <AlertTriangle className="flex-shrink-0 mt-0.5" size={20} />
+                <div>
+                  <h4 className="font-bold text-sm">Pemberitahuan Sistem</h4>
+                  <p className="font-medium text-xs mt-1 opacity-90">{error}</p>
+                </div>
               </div>
             )}
 
@@ -534,10 +539,14 @@ export default function UserDashboard() {
             {/* Results Grid */}
             {displayedData.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayedData.map((place) => {
+                {displayedData.map((place, index) => {
                   const hasValidPhone = place.phone && place.phone.trim() !== '' && place.phone !== '-';
                   return (
-                    <div key={place.id} className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                    <div 
+                      key={place.id} 
+                      className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col hover:-translate-y-1.5 hover:scale-[1.02] hover:shadow-lg transition-all duration-300 animate-fade-in-up"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
                       <div className="p-5 border-b border-surface-container flex justify-between items-start">
                         <div>
                           <h4 className="font-bold text-on-surface text-sm line-clamp-1">{place.name}</h4>
@@ -622,38 +631,6 @@ export default function UserDashboard() {
 
         {/* Footer */}
         <footer className="bg-surface-container-lowest border-t border-outline-variant mt-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-gutter py-margin-desktop max-w-container-max mx-auto">
-            <div className="col-span-1">
-              <span className="font-hanken text-lg font-bold text-primary">GeoExtract</span>
-              <p className="mt-4 text-on-surface-variant font-inter text-xs">
-                Empowering businesses with precision geospatial data mining solutions.
-              </p>
-            </div>
-            <div>
-              <h5 className="font-bold text-on-surface text-sm mb-4">Product</h5>
-              <ul className="space-y-2 font-inter text-xs text-on-surface-variant">
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>API Documentation</a></li>
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>Coverage Maps</a></li>
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>Status Page</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold text-on-surface text-sm mb-4">Company</h5>
-              <ul className="space-y-2 font-inter text-xs text-on-surface-variant">
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>About Us</a></li>
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>Privacy Policy</a></li>
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>Terms of Service</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold text-on-surface text-sm mb-4">Support</h5>
-              <ul className="space-y-2 font-inter text-xs text-on-surface-variant">
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>Help Center</a></li>
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>Email Support</a></li>
-                <li><a className="hover:text-primary transition-colors" href="#" onClick={(e) => e.preventDefault()}>Contact Sales</a></li>
-              </ul>
-            </div>
-          </div>
           <div className="border-t border-outline-variant py-6 text-center">
             <p className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest">
               © 2024 GeoExtract. All rights reserved. Precision Geospatial Solutions.
