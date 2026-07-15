@@ -67,10 +67,6 @@ export default function AdminLayout() {
           </div>
           
           <div className="border-t border-outline-variant pt-4 flex flex-col gap-1">
-            <a href="#" className="px-4 py-2.5 mx-2 rounded-lg flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high transition-all text-xs font-medium" onClick={(e) => e.preventDefault()}>
-              <HelpCircle size={16} />
-              Support
-            </a>
             <button 
               onClick={handleLogout}
               className="px-4 py-2.5 mx-2 rounded-lg flex items-center gap-3 text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-all text-xs font-medium text-left"
