@@ -35,7 +35,7 @@ Area konten utama mengambil sisa lebar layar dan bergeser pada tampilan desktop 
 * **Visual:** Menempel di atas (`sticky top-0`) dengan efek kaca buram (`backdrop-blur-md`).
 * **Elemen Kiri:** 
   - Tombol Hamburger (Hanya muncul di Mobile) untuk membuka Sidebar.
-  - Judul Halaman ("Data Mining Dashboard").
+  - Judul Halaman ("User Dashboard").
 * **Elemen Kanan:** 
   - Tombol Notifikasi (Ikon Lonceng) dengan _badge_ merah yang berkedip (*animate-pulse*).
   - Garis pemisah (`divider`).

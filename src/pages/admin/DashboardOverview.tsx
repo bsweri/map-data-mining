@@ -175,7 +175,7 @@ export default function DashboardOverview() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       {/* Top Header */}
       <header className="flex justify-between items-end">
         <div>
@@ -195,7 +195,7 @@ export default function DashboardOverview() {
       {/* Stats Grid (Bento Style) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Users */}
-        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '0ms' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-primary/10 rounded-lg text-primary">
               <Users size={20} />
@@ -209,7 +209,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* API Calls */}
-        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '50ms' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-secondary-container text-on-secondary-container rounded-lg">
               <Activity size={20} />
@@ -223,7 +223,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* Active Premium */}
-        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-tertiary-fixed rounded-lg text-primary">
               <ShieldCheck size={20} />
@@ -239,7 +239,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* Server Latency */}
-        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between">
+        <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl shadow-sm flex flex-col justify-between hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-error-container text-error rounded-lg">
               <Database size={20} />
@@ -254,10 +254,10 @@ export default function DashboardOverview() {
       </div>
 
       {/* Main Sections Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
         {/* User Management Table */}
         <div className="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant flex flex-col overflow-hidden">
-          <div className="p-6 border-b border-outline-variant flex justify-between items-center">
+          <div className="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
             <h3 className="font-hanken text-lg font-bold text-on-surface">User Management</h3>
             <div className="relative">
               <input 
@@ -265,7 +265,7 @@ export default function DashboardOverview() {
                 placeholder="Search users..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-outline-variant rounded-lg font-inter text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-surface-lowest text-on-surface"
+                className="pl-10 pr-4 py-2 border border-outline-variant rounded-lg font-inter text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-surface text-on-surface"
               />
               <Search className="absolute left-3 top-2.5 text-on-surface-variant" size={16} />
             </div>
@@ -310,9 +310,9 @@ export default function DashboardOverview() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-1 hover:bg-surface-container-high rounded transition-colors text-on-surface-variant opacity-0 group-hover:opacity-100">
+                      <Link to="/admin/users" className="p-1 hover:bg-surface-container-high rounded transition-colors text-on-surface-variant opacity-0 group-hover:opacity-100">
                         <MoreVertical size={16} />
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -325,7 +325,7 @@ export default function DashboardOverview() {
             </table>
           </div>
           <div className="p-4 border-t border-outline-variant flex justify-center bg-surface-container-lowest">
-            <Link to="/admin/users" className="text-primary font-inter text-xs font-semibold hover:underline">
+            <Link to="/admin/users" className="text-primary font-inter text-xs font-bold hover:underline hover:text-primary-container transition-colors">
               View All {stats.totalUsers} Registered Accounts
             </Link>
           </div>
@@ -334,7 +334,7 @@ export default function DashboardOverview() {
         {/* Config & System Status Panel */}
         <div className="space-y-6">
           {/* System Config */}
-          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-6">
+          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-6 hover:shadow-md transition-shadow">
             <h3 className="font-hanken text-base font-bold text-on-surface mb-6 flex items-center gap-2">
               <Settings className="text-primary" size={18} /> Config Panel
             </h3>
@@ -345,7 +345,7 @@ export default function DashboardOverview() {
                   type="number" 
                   value={globalLimit} 
                   onChange={(e) => setGlobalLimit(Number(e.target.value))}
-                  className="w-24 px-2 py-1 border border-outline-variant rounded bg-surface-container-low font-inter text-xs text-on-surface focus:outline-none focus:border-primary text-center"
+                  className="w-24 px-2 py-1.5 border border-outline-variant rounded-md bg-surface-container-low font-inter text-xs text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-center transition-all"
                 />
               </div>
               <div className="flex justify-between items-center">
@@ -354,7 +354,7 @@ export default function DashboardOverview() {
                   onClick={() => setStrictMode(!strictMode)}
                   className={`w-12 h-6 rounded-full relative transition-colors ${strictMode ? 'bg-primary' : 'bg-outline-variant'}`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${strictMode ? 'right-1' : 'left-1'}`}></span>
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${strictMode ? 'right-1' : 'left-1'}`}></span>
                 </button>
               </div>
               <div className="flex justify-between items-center">
@@ -363,30 +363,34 @@ export default function DashboardOverview() {
                   onClick={() => setAutoScaling(!autoScaling)}
                   className={`w-12 h-6 rounded-full relative transition-colors ${autoScaling ? 'bg-primary' : 'bg-outline-variant'}`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${autoScaling ? 'right-1' : 'left-1'}`}></span>
+                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all shadow-sm ${autoScaling ? 'right-1' : 'left-1'}`}></span>
                 </button>
               </div>
               <hr className="border-outline-variant" />
               <button 
                 onClick={handleApplyConfig}
                 disabled={isApplyingConfig}
-                className="w-full py-2 bg-primary text-on-primary rounded font-inter text-xs font-semibold hover:brightness-110 transition-opacity flex items-center justify-center disabled:opacity-75"
+                className="w-full py-2.5 bg-primary text-on-primary rounded-lg font-inter text-xs font-bold hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-75"
               >
                 {isApplyingConfig ? 'Applying...' : 'Apply Changes'}
               </button>
             </div>
           </div>
 
-          {/* Server Logs */}
-          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-6 flex flex-col h-64 overflow-hidden">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-inter text-xs font-bold uppercase tracking-wider text-on-surface-variant">Live Server Logs</h3>
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          {/* Server Logs (Terminal Style) */}
+          <div className="bg-inverse-surface rounded-xl shadow-lg border border-inverse-surface p-6 flex flex-col h-64 overflow-hidden relative group">
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none"></div>
+            <div className="flex justify-between items-center mb-4 relative z-10">
+              <h3 className="font-inter text-xs font-bold uppercase tracking-wider text-inverse-on-surface">Live Server Logs</h3>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[9px] text-green-400">ACTIVE</span>
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+              </div>
             </div>
-            <div className="flex-grow overflow-y-auto font-mono text-[10px] leading-relaxed text-on-surface-variant bg-surface-container-low p-3 rounded border border-outline-variant space-y-1.5 custom-scrollbar">
+            <div className="flex-grow overflow-y-auto font-mono text-[10.5px] leading-relaxed text-inverse-on-surface bg-black/40 p-3.5 rounded-lg space-y-1.5 custom-scrollbar relative z-10 border border-white/5">
               {logs.map((log, idx) => (
-                <p key={idx} className={log.type === 'OK' ? 'text-green-600' : log.type === 'WARN' ? 'text-amber-600' : 'text-on-surface-variant'}>
-                  [{log.type}] {log.time} - {log.message}
+                <p key={idx} className={log.type === 'OK' ? 'text-green-400' : log.type === 'WARN' ? 'text-amber-400' : 'text-slate-300'}>
+                  <span className="opacity-50">[{log.time}]</span> <span className="font-bold">[{log.type}]</span> <span className="opacity-90">{log.message}</span>
                 </p>
               ))}
             </div>
@@ -395,12 +399,12 @@ export default function DashboardOverview() {
       </div>
 
       {/* Geographic Focus Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
         <div className="lg:col-span-3 rounded-xl overflow-hidden relative h-[360px] shadow-sm border border-outline-variant bg-slate-100 flex flex-col justify-between p-6">
           {/* Map Overlay Simulation */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-tertiary/10 z-0"></div>
           
-          <div className="z-10 bg-surface/90 backdrop-blur-md px-4 py-2.5 rounded-lg border border-outline-variant flex items-center gap-3 w-fit">
+          <div className="z-10 bg-surface/90 backdrop-blur-md px-4 py-2.5 rounded-lg border border-outline-variant flex items-center gap-3 w-fit shadow-sm">
             <Globe className="text-primary animate-spin" style={{ animationDuration: '8s' }} size={20} />
             <div>
               <p className="font-inter text-xs font-bold text-on-surface">San Francisco, CA</p>
@@ -408,45 +412,45 @@ export default function DashboardOverview() {
             </div>
           </div>
 
-          <div className="z-10 bg-surface/90 backdrop-blur-md p-3 rounded-lg border border-outline-variant w-fit self-end">
+          <div className="z-10 bg-surface/90 backdrop-blur-md p-3 rounded-lg border border-outline-variant w-fit self-end shadow-sm">
             <p className="font-inter text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">Live Extraction Rate</p>
             <p className="font-hanken text-lg font-bold text-primary">2.4 GB/s</p>
           </div>
         </div>
 
         {/* Side Ad Container */}
-        <div className="bg-surface-container-low rounded-xl border border-outline-variant flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div className="bg-surface-container-low rounded-xl border border-outline-variant flex flex-col items-center justify-center p-6 text-center space-y-4 hover:border-primary/30 transition-colors">
           <span className="font-inter text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-50">Advertisement</span>
-          <div className="w-full bg-white rounded-lg flex flex-col items-center p-4 shadow-sm border border-outline-variant/30">
-            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-3">
-              <Globe size={20} />
+          <div className="w-full bg-surface-container-lowest rounded-lg flex flex-col items-center p-5 shadow-sm border border-outline-variant/50 hover:shadow-md transition-all">
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-3">
+              <Globe size={24} />
             </div>
-            <p className="font-inter text-xs font-bold text-on-surface mb-1">Precision Maps Pro</p>
-            <p className="font-inter text-[10px] text-on-surface-variant mb-3 leading-relaxed">Unlock vector data across 40 countries instantly.</p>
+            <p className="font-inter text-sm font-bold text-on-surface mb-1">Precision Maps Pro</p>
+            <p className="font-inter text-[10px] text-on-surface-variant mb-4 leading-relaxed px-2">Unlock vector data across 40 countries instantly with no rate limits.</p>
             <button className="text-primary font-bold text-xs hover:underline" onClick={(e) => e.preventDefault()}>Learn More</button>
           </div>
         </div>
       </div>
 
       {/* Featured PayPal Fund Component (Infrastructure Fund) */}
-      <section className="pb-4">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-tertiary/10 p-8 border border-primary/20">
+      <section className="pb-8 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/10 to-tertiary/10 p-8 border border-primary/20 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
             <div className="max-w-xl">
-              <div className="inline-flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-primary/20 mb-4">
+              <div className="inline-flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-full border border-primary/20 mb-4 shadow-sm">
                 <CheckCircle className="text-primary" size={14} />
                 <span className="font-inter text-[10px] font-bold text-primary uppercase tracking-wider">SECURE INFRASTRUCTURE FUND</span>
               </div>
-              <h2 className="font-hanken text-xl font-bold text-on-surface mb-2">Support GeoExtract Development</h2>
-              <p className="font-inter text-xs text-on-surface-variant leading-relaxed">
+              <h2 className="font-hanken text-2xl font-bold text-on-surface mb-3">Support GeoExtract Development</h2>
+              <p className="font-inter text-sm text-on-surface-variant leading-relaxed max-w-lg">
                 Contribute to our open geospatial research fund. All transactions are securely handled via PayPal with end-to-end encryption.
               </p>
             </div>
             <div className="flex flex-col items-center md:items-end gap-3 flex-shrink-0">
-              <div className="text-center md:text-right">
-                <p className="font-inter text-[10px] font-semibold text-on-surface-variant mb-1 uppercase tracking-wider">Enter Amount (USD)</p>
+              <div className="text-center md:text-right w-full">
+                <p className="font-inter text-[10px] font-semibold text-on-surface-variant mb-1.5 uppercase tracking-wider">Enter Amount (USD)</p>
                 <input 
-                  className="text-center font-hanken text-lg font-bold bg-white border border-outline-variant rounded-xl w-32 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface" 
+                  className="text-center font-hanken text-lg font-bold bg-surface-container-lowest border border-outline-variant rounded-xl w-32 md:w-40 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface shadow-inner" 
                   type="text" 
                   value={donationAmount}
                   onChange={(e) => setDonationAmount(e.target.value)}
@@ -455,13 +459,13 @@ export default function DashboardOverview() {
               <button 
                 onClick={handlePayPalDonation}
                 disabled={isDonating}
-                className="px-8 py-3 bg-primary text-on-primary rounded-xl font-bold font-inter text-xs shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center"
+                className="w-full md:w-auto px-8 py-3 bg-primary text-on-primary rounded-xl font-bold font-inter text-xs shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-70"
               >
                 {isDonating ? 'Connecting...' : 'Donate via PayPal'}
               </button>
             </div>
           </div>
-          <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl z-0 pointer-events-none"></div>
+          <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl z-0 pointer-events-none"></div>
         </div>
       </section>
     </div>
