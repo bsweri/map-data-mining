@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { hasExceededLocalQuota, getLocalQuota, incrementLocalQuota } from '../lib/quota';
+import { hasExceededLocalQuota, getLocalQuota, incrementLocalQuota, FREE_DAILY_LIMIT } from '../lib/quota';
 import type { MapPlace } from '../types';
 import * as XLSX from 'xlsx';
 import { 
@@ -21,7 +21,12 @@ import {
   Phone, 
   Star, 
   Map, 
-  ExternalLink
+  ExternalLink,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Filter
 } from 'lucide-react';
 
 export default function UserDashboard() {
@@ -37,11 +42,44 @@ export default function UserDashboard() {
   const [currentKeyword, setCurrentKeyword] = useState('');
   const [isExporting, setIsExporting] = useState(false);
 
+  // New UI & Revision states
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(3);
+  const [localSearchQuery, setLocalSearchQuery] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [minRating, setMinRating] = useState<number>(0);
+  const [hasPhoneOnly, setHasPhoneOnly] = useState(false);
+
+  // Dynamic quota
+  const isFree = !user || profile?.current_membership === 'free';
+  const quotaLimit = isFree ? FREE_DAILY_LIMIT : 100;
+  const [quotaUsed, setQuotaUsed] = useState(0);
+
+  useEffect(() => {
+    // Initial quota load
+    if (isFree) {
+      setQuotaUsed(getLocalQuota().count);
+    } else {
+      setQuotaUsed(15); // Mocked used quota for paid tiers
+    }
+  }, [profile, isFree]);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!keyword || !location) return;
 
-    const isFree = !user || profile?.current_membership === 'free';
     if (isFree && hasExceededLocalQuota()) {
       setError('Batas kuota harian pencarian Anda telah habis. Silakan buat akun atau upgrade paket untuk pencarian tanpa batas.');
       return;
@@ -59,7 +97,9 @@ export default function UserDashboard() {
         location, 
         radius,
         user_id: user?.id,
-        local_id: isFree ? localData.localId : null
+        local_id: isFree ? localData.localId : null,
+        min_rating: minRating,
+        phone_only: hasPhoneOnly
       };
 
       const response = await fetch('https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/search-maps', {
@@ -79,9 +119,20 @@ export default function UserDashboard() {
 
       if (isFree) {
         incrementLocalQuota();
+        setQuotaUsed(getLocalQuota().count);
+      } else {
+        setQuotaUsed(prev => prev + 1);
       }
 
-      setData(result.data || []);
+      let filtered = result.data || [];
+      if (minRating > 0) {
+        filtered = filtered.filter((place: any) => (place.rating || 0) >= minRating);
+      }
+      if (hasPhoneOnly) {
+        filtered = filtered.filter((place: any) => place.phone && place.phone.trim() !== '' && place.phone !== '-');
+      }
+
+      setData(filtered);
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan sistem.');
     } finally {
@@ -89,17 +140,28 @@ export default function UserDashboard() {
     }
   };
 
+  // Filtered data for display and export
+  const displayedData = data.filter(place => {
+    const query = localSearchQuery.toLowerCase();
+    return (
+      place.name.toLowerCase().includes(query) ||
+      place.address.toLowerCase().includes(query) ||
+      (place.phone && place.phone.toLowerCase().includes(query))
+    );
+  });
+
   const handleExport = () => {
-    if (data.length === 0) return;
+    if (displayedData.length === 0) return;
     setIsExporting(true);
 
     try {
-      const exportData = data.map((item, index) => ({
+      const exportData = displayedData.map((item, index) => ({
         'No': index + 1,
         'Name': item.name,
         'Address': item.address,
         'Phone': item.phone || '-',
         'Radius Zone': item.radiusZone,
+        'Rating': item.rating || '-',
         'Google Maps URL': item.mapsLink,
       }));
 
@@ -112,6 +174,7 @@ export default function UserDashboard() {
         { wch: 50 },
         { wch: 20 },
         { wch: 15 },
+        { wch: 10 },
         { wch: 45 },
       ];
       worksheet['!cols'] = wscols;
@@ -133,13 +196,38 @@ export default function UserDashboard() {
 
   const handleLogout = async () => {
     await signOut();
-    navigate('/login');
+    navigate('/');
   };
+
+  const remainingQuota = Math.max(0, quotaLimit - quotaUsed);
+  const quotaPercentage = (remainingQuota / quotaLimit) * 100;
+  const membershipCapitalized = (() => {
+    const mem = profile?.current_membership || 'Free';
+    return mem.charAt(0).toUpperCase() + mem.slice(1);
+  })();
 
   return (
     <div className="min-h-screen bg-surface text-on-surface font-inter flex">
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-40 md:hidden backdrop-blur-xs transition-opacity duration-300" 
+          onClick={() => setIsMobileSidebarOpen(false)} 
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-6 z-50">
+      <aside className={`h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-6 z-50 transition-transform duration-300 ease-in-out md:translate-x-0 ${
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        {/* Close button for mobile */}
+        <button 
+          onClick={() => setIsMobileSidebarOpen(false)}
+          className="md:hidden absolute right-4 top-4 p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-all"
+        >
+          <X size={18} />
+        </button>
+
         <div className="px-6 mb-8">
           <h1 className="font-hanken text-2xl font-bold text-primary tracking-tight">GeoExtract</h1>
         </div>
@@ -180,16 +268,21 @@ export default function UserDashboard() {
                 <span className="font-inter text-sm font-bold text-on-surface truncate" title={profile?.email}>
                   {profile?.email ? profile.email.split('@')[0] : 'User'}
                 </span>
-                <span className="text-xs text-on-surface-variant capitalize">{profile?.current_membership || 'free'} Member</span>
+                <span className="text-xs text-on-surface-variant capitalize">{membershipCapitalized} Member</span>
               </div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
                 <span>Query Credits</span>
-                <span>{profile?.current_membership === 'free' ? '5/5' : '100/100'}</span>
+                <span>{remainingQuota} / {quotaLimit}</span>
               </div>
               <div className="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full" style={{ width: '100%' }}></div>
+                <div 
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    remainingQuota <= 1 ? 'bg-red-500' : 'bg-primary'
+                  }`} 
+                  style={{ width: `${quotaPercentage}%` }}
+                ></div>
               </div>
               <button className="w-full mt-2 py-2 bg-primary text-on-primary rounded-lg font-inter text-xs font-semibold hover:opacity-90 active:scale-95 transition-all">
                 Upgrade Plan
@@ -214,15 +307,29 @@ export default function UserDashboard() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="ml-64 flex-grow min-h-screen flex flex-col">
+      <main className="md:ml-64 flex-grow min-h-screen flex flex-col transition-all duration-300">
         {/* Top Header */}
         <header className="h-16 px-gutter flex items-center justify-between sticky top-0 bg-surface/80 backdrop-blur-md border-b border-outline-variant z-40">
-          <div>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="md:hidden p-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors"
+            >
+              <Menu size={20} />
+            </button>
             <h2 className="font-hanken text-lg font-bold text-on-surface">Data Mining Dashboard</h2>
           </div>
           <div className="flex items-center gap-4">
-            <button className="p-2 text-on-surface-variant hover:text-primary transition-colors">
+            <button 
+              onClick={() => setUnreadNotificationsCount(0)}
+              className="p-2 text-on-surface-variant hover:text-primary transition-colors relative"
+            >
               <Bell size={18} />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-1 right-1 w-4.5 h-4.5 bg-red-500 text-[10px] font-bold text-white rounded-full flex items-center justify-center animate-pulse">
+                  {unreadNotificationsCount}
+                </span>
+              )}
             </button>
             <div className="h-8 w-px bg-outline-variant"></div>
             <div className="flex items-center gap-2">
@@ -273,6 +380,50 @@ export default function UserDashboard() {
                   </div>
                 </div>
 
+                <div className="pt-2 border-t border-outline-variant/50">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:opacity-85 transition-opacity"
+                  >
+                    <Filter size={14} />
+                    <span>Advanced Options</span>
+                    {showAdvanced ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </button>
+
+                  {showAdvanced && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 p-4 bg-surface rounded-lg border border-outline-variant/60 transition-all duration-300">
+                      <div className="space-y-1.5">
+                        <label className="font-inter text-xs font-semibold text-on-surface-variant flex justify-between">
+                          <span>Minimum Rating</span>
+                          <span className="text-primary font-bold">{minRating || 'Any'} ★</span>
+                        </label>
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="5" 
+                          step="0.5"
+                          value={minRating}
+                          onChange={(e) => setMinRating(Number(e.target.value))}
+                          className="w-full h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 pt-5 sm:pt-4">
+                        <input 
+                          type="checkbox"
+                          id="hasPhoneOnly"
+                          checked={hasPhoneOnly}
+                          onChange={(e) => setHasPhoneOnly(e.target.checked)}
+                          className="w-4 h-4 rounded text-primary focus:ring-primary/20 accent-primary border-outline"
+                        />
+                        <label htmlFor="hasPhoneOnly" className="font-inter text-xs font-semibold text-on-surface-variant cursor-pointer select-none">
+                          Hanya nomor telepon saja
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2">
                     <label className="font-inter text-xs font-semibold text-on-surface-variant">Radius:</label>
@@ -290,7 +441,7 @@ export default function UserDashboard() {
 
                   <button 
                     type="submit"
-                    disabled={isLoading || !keyword || !location}
+                    disabled={isLoading || !keyword || !location || !isOnline}
                     className="px-8 py-3 bg-primary text-on-primary rounded-lg font-bold font-inter text-sm shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 disabled:bg-surface-variant disabled:text-outline disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
@@ -314,13 +465,15 @@ export default function UserDashboard() {
 
             {/* Featured Stats / Credits */}
             <div className="md:col-span-4 flex flex-col gap-6">
-              <div className="bg-primary-container text-on-primary-container p-6 rounded-xl shadow-sm border border-primary relative overflow-hidden flex-1">
+              <div className={`p-6 rounded-xl shadow-sm border relative overflow-hidden flex-1 transition-colors duration-500 ${
+                isOnline ? 'bg-primary-container text-on-primary-container border-primary' : 'bg-red-50 text-red-800 border-red-200'
+              }`}>
                 <div className="relative z-10">
                   <span className="font-inter text-xs uppercase tracking-widest opacity-80 font-bold">Extraction Health</span>
-                  <div className="mt-2 font-hanken text-2xl font-bold">99.8% Success</div>
+                  <div className="mt-2 font-hanken text-2xl font-bold">{isOnline ? '99.8% Success' : 'Offline'}</div>
                   <div className="mt-4 flex items-center gap-2 bg-on-primary-container/10 w-fit px-3 py-1 rounded-full text-[10px] font-bold">
-                    <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                    API Connection Stable
+                    <span className={`w-2 h-2 rounded-full animate-pulse ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    {isOnline ? 'API Connection Stable' : 'No Internet Connection'}
                   </div>
                 </div>
                 <Zap className="absolute -right-4 -bottom-4 text-9xl opacity-10" size={144} />
@@ -335,7 +488,6 @@ export default function UserDashboard() {
               </div>
             </div>
           </section>
-
           {/* Results Section */}
           <section className="mb-8">
             {error && (
@@ -344,84 +496,116 @@ export default function UserDashboard() {
               </div>
             )}
 
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <h3 className="font-hanken text-xl font-bold text-on-surface">Extracted Results</h3>
-                {data.length > 0 && (
+                {displayedData.length > 0 && (
                   <span className="px-2 py-0.5 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase">
-                    Last 24 Hours
+                    {displayedData.length} items
                   </span>
                 )}
               </div>
-              {data.length > 0 && (
-                <button 
-                  onClick={handleExport}
-                  disabled={isExporting}
-                  className="px-5 py-2.5 border-2 border-primary text-primary font-bold rounded-lg font-inter text-xs hover:bg-primary/5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Download size={14} />
-                  <span>{isExporting ? 'Exporting...' : 'Export to Excel'}</span>
-                </button>
-              )}
+              <div className="flex flex-wrap items-center gap-3">
+                {data.length > 0 && (
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" size={14} />
+                    <input 
+                      type="text"
+                      placeholder="Cari di hasil..."
+                      value={localSearchQuery}
+                      onChange={(e) => setLocalSearchQuery(e.target.value)}
+                      className="pl-8 pr-4 py-1.5 bg-surface border border-outline-variant rounded-lg text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary w-48 transition-all"
+                    />
+                  </div>
+                )}
+                {displayedData.length > 0 && (
+                  <button 
+                    onClick={handleExport}
+                    disabled={isExporting}
+                    className="px-5 py-2.5 border-2 border-primary text-primary font-bold rounded-lg font-inter text-xs hover:bg-primary/5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Download size={14} />
+                    <span>{isExporting ? 'Exporting...' : 'Export to Excel'}</span>
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Results Grid */}
-            {data.length > 0 ? (
+            {displayedData.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {data.map((place) => (
-                  <div key={place.id} className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col hover:-translate-y-1 hover:shadow-md transition-all duration-200">
-                    <div className="p-5 border-b border-surface-container flex justify-between items-start">
-                      <div>
-                        <h4 className="font-bold text-on-surface text-sm line-clamp-1">{place.name}</h4>
-                        <p className="text-xs text-on-surface-variant mt-0.5">Business Lead • Zone {place.radiusZone}</p>
+                {displayedData.map((place) => {
+                  const hasValidPhone = place.phone && place.phone.trim() !== '' && place.phone !== '-';
+                  return (
+                    <div key={place.id} className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col hover:-translate-y-1 hover:shadow-md transition-all duration-200">
+                      <div className="p-5 border-b border-surface-container flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold text-on-surface text-sm line-clamp-1">{place.name}</h4>
+                          <p className="text-xs text-on-surface-variant mt-0.5">Business Lead • Zone {place.radiusZone}</p>
+                        </div>
+                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-bold">
+                          VERIFIED
+                        </span>
                       </div>
-                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-[9px] font-bold">
-                        VERIFIED
-                      </span>
+                      <div className="p-5 space-y-3 bg-[#f8fbff] flex-grow">
+                        <div className="flex items-center gap-3 text-xs text-on-surface-variant">
+                          <Phone size={16} className="text-primary flex-shrink-0" />
+                          <span className="text-on-surface truncate">{place.phone || '-'}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-on-surface-variant">
+                          <MapPin size={16} className="text-primary flex-shrink-0" />
+                          <span className="text-on-surface truncate" title={place.address}>{place.address}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-on-surface-variant">
+                          <Star size={16} className="text-primary flex-shrink-0 fill-amber-400 stroke-amber-400" />
+                          <span className="text-on-surface">
+                            {place.rating ? `${place.rating} (${place.rating >= 4 ? 'Highly Rated' : 'Verified Reviews'})` : 'No rating'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-surface border-t border-outline-variant flex gap-2">
+                        {hasValidPhone ? (
+                          <a 
+                            href={`https://wa.me/${place.phone?.replace(/[^0-9]/g, '')}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex-grow py-2 bg-[#25D366] text-white rounded-lg flex items-center justify-center gap-2 font-inter text-xs font-bold hover:brightness-95 active:scale-[0.98] transition-all text-center"
+                          >
+                            WhatsApp
+                          </a>
+                        ) : (
+                          <button 
+                            disabled
+                            className="flex-grow py-2 bg-surface-container-high text-outline rounded-lg flex items-center justify-center gap-2 font-inter text-xs font-bold cursor-not-allowed opacity-50"
+                          >
+                            No WhatsApp
+                          </button>
+                        )}
+                        <a 
+                          href={place.mapsLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-primary hover:border-primary transition-colors"
+                        >
+                          <Map size={16} />
+                        </a>
+                      </div>
                     </div>
-                    <div className="p-5 space-y-3 bg-[#f8fbff] flex-grow">
-                      <div className="flex items-center gap-3 text-xs text-on-surface-variant">
-                        <Phone size={16} className="text-primary flex-shrink-0" />
-                        <span className="text-on-surface truncate">{place.phone || '-'}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-on-surface-variant">
-                        <MapPin size={16} className="text-primary flex-shrink-0" />
-                        <span className="text-on-surface truncate" title={place.address}>{place.address}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-on-surface-variant">
-                        <Star size={16} className="text-primary flex-shrink-0 fill-amber-400 stroke-amber-400" />
-                        <span className="text-on-surface">4.5 (Verified Reviews)</span>
-                      </div>
-                    </div>
-                    <div className="p-4 bg-surface border-t border-outline-variant flex gap-2">
-                      <a 
-                        href={`https://wa.me/${place.phone?.replace(/[^0-9]/g, '')}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex-grow py-2 bg-[#25D366] text-white rounded-lg flex items-center justify-center gap-2 font-inter text-xs font-bold hover:brightness-95 active:scale-[0.98] transition-all text-center"
-                      >
-                        WhatsApp
-                      </a>
-                      <a 
-                        href={place.mapsLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-primary hover:border-primary transition-colors"
-                      >
-                        <Map size={16} />
-                      </a>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-12 text-center">
                 <div className="bg-primary-container w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
                   <MapPin size={40} />
                 </div>
-                <h3 className="text-lg font-hanken font-bold text-on-surface mb-1">No Active Extraction</h3>
+                <h3 className="text-lg font-hanken font-bold text-on-surface mb-1">
+                  {localSearchQuery ? 'Tidak ada hasil pencarian local' : 'No Active Extraction'}
+                </h3>
                 <p className="font-inter text-sm text-on-surface-variant max-w-md mx-auto">
-                  Run a new extraction using the parameters above to preview geospatial lead data.
+                  {localSearchQuery 
+                    ? `Tidak ada data yang cocok dengan "${localSearchQuery}" di hasil scraping saat ini.`
+                    : 'Run a new extraction using the parameters above to preview geospatial lead data.'}
                 </p>
               </div>
             )}
