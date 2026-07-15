@@ -7,10 +7,8 @@ import type { MapPlace } from '../types';
 import * as XLSX from 'xlsx';
 import { 
   LayoutDashboard, 
-  TrendingUp, 
   Compass, 
   CreditCard, 
-  Settings, 
   HelpCircle, 
   LogOut, 
   Bell, 

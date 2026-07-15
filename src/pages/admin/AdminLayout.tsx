@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, CreditCard, LogOut, Settings, HelpCircle, MapPinned } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, LogOut, Settings, MapPinned } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function AdminLayout() {
