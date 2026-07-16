@@ -5,8 +5,6 @@ import SearchForm from '../components/SearchForm';
 import DataGrid from '../components/DataGrid';
 import ExportButton from '../components/ExportButton';
 import AdSenseBanner from '../components/AdSenseBanner';
-import PricingPackages from '../components/PricingPackages';
-import Footer from '../components/Footer';
 import type { MapPlace } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -219,8 +217,6 @@ export default function Home() {
               <div className="mt-8">
                 <AdSenseBanner slot="4773612818" />
               </div>
-              
-              <PricingPackages />
             </div>
 
             {/* Sidebar (Right) */}
@@ -296,8 +292,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

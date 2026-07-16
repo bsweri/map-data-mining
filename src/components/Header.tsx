@@ -58,7 +58,7 @@ export default function Header() {
               </div>
 
               <a className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" href="#">AFFILIATE</a>
-              <a className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" href="#">PRICING</a>
+              <Link className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" to="/pricing">PRICING</Link>
               <a className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" href="#">FAQ</a>
 
               {/* About Us Dropdown */}
@@ -138,7 +138,7 @@ export default function Header() {
               </div>
 
               <a className="py-4 text-xl text-on-surface border-b border-outline-variant" href="#" onClick={() => setIsMobileMenuOpen(false)}>AFFILIATE</a>
-              <a className="py-4 text-xl text-on-surface border-b border-outline-variant" href="#" onClick={() => setIsMobileMenuOpen(false)}>PRICING</a>
+              <Link className="py-4 text-xl text-on-surface border-b border-outline-variant" to="/pricing" onClick={() => setIsMobileMenuOpen(false)}>PRICING</Link>
               <a className="py-4 text-xl text-on-surface border-b border-outline-variant" href="#" onClick={() => setIsMobileMenuOpen(false)}>FAQ</a>
 
               {/* About Us Accordion */}
