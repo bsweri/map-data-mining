@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { FREE_DAILY_LIMIT } from '../lib/quota';
@@ -30,7 +30,6 @@ import {
 
 export default function UserDashboard() {
   const { user, profile, signOut } = useAuth();
-  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
   
@@ -197,9 +196,9 @@ export default function UserDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    navigate('/', { replace: true });
-    signOut();
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = import.meta.env.BASE_URL || '/';
   };
 
   const remainingQuota = Math.max(0, quotaLimit - quotaUsed);

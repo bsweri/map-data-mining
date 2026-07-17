@@ -1,11 +1,10 @@
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, CreditCard, LogOut, Settings, MapPinned } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function AdminLayout() {
   const { pathname } = useLocation();
   const { signOut } = useAuth();
-  const navigate = useNavigate();
 
   const navItems = [
     { name: 'Overview', path: '/admin', icon: LayoutDashboard },
@@ -14,9 +13,9 @@ export default function AdminLayout() {
     { name: 'Global Settings', path: '/admin/settings', icon: Settings },
   ];
 
-  const handleLogout = () => {
-    navigate('/', { replace: true });
-    signOut();
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = import.meta.env.BASE_URL || '/';
   };
 
   return (
