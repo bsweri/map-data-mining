@@ -197,9 +197,9 @@ export default function UserDashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
+  const handleLogout = () => {
+    navigate('/', { replace: true });
+    signOut();
   };
 
   const remainingQuota = Math.max(0, quotaLimit - quotaUsed);

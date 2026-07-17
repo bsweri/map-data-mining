@@ -14,9 +14,9 @@ export default function AdminLayout() {
     { name: 'Global Settings', path: '/admin/settings', icon: Settings },
   ];
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
+  const handleLogout = () => {
+    navigate('/', { replace: true });
+    signOut();
   };
 
   return (
