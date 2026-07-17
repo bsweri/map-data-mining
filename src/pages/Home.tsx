@@ -33,14 +33,14 @@ export default function Home() {
 
   const handleSearch = async (keyword: string, location: string, radius: number, minRating: number, hasPhoneOnly: boolean) => {
     if (!user) {
-      const searchParams = new URLSearchParams({ 
-        keyword, 
-        location, 
-        radius: radius.toString(),
-        minRating: minRating.toString(),
-        hasPhoneOnly: hasPhoneOnly.toString()
-      });
-      navigate(`/login?${searchParams.toString()}`);
+      sessionStorage.setItem('pendingSearch', JSON.stringify({
+        keyword,
+        location,
+        radius,
+        minRating,
+        hasPhoneOnly
+      }));
+      navigate('/login');
       return;
     }
 

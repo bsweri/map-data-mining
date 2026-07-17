@@ -33,9 +33,19 @@ export default function UserDashboard() {
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
-  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [radius, setRadius] = useState<number>(Number(searchParams.get('radius')) || 3);
+  
+  // Baca state awal dari sessionStorage (jika dialihkan dari Home page via Login)
+  // Atau fallback ke query parameters (jika user manual share URL)
+  const pendingSearchStr = sessionStorage.getItem('pendingSearch');
+  const pendingSearch = pendingSearchStr ? JSON.parse(pendingSearchStr) : null;
+
+  const [keyword, setKeyword] = useState(pendingSearch?.keyword || searchParams.get('keyword') || '');
+  const [location, setLocation] = useState(pendingSearch?.location || searchParams.get('location') || '');
+  const [radius, setRadius] = useState<number>(pendingSearch?.radius || Number(searchParams.get('radius')) || 3);
+  
+  const parsedMinRating = pendingSearch?.minRating ?? (Number(searchParams.get('minRating')) || 0);
+  const parsedHasPhone = pendingSearch?.hasPhoneOnly ?? (searchParams.get('hasPhoneOnly') === 'true');
+  
   const autoTriggered = useRef(false);
   const [data, setData] = useState<MapPlace[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,8 +58,6 @@ export default function UserDashboard() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(3);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
-  const parsedMinRating = Number(searchParams.get('minRating')) || 0;
-  const parsedHasPhone = searchParams.get('hasPhoneOnly') === 'true';
   
   const [showAdvanced, setShowAdvanced] = useState(parsedMinRating > 0 || parsedHasPhone);
   const [minRating, setMinRating] = useState<number>(parsedMinRating);
@@ -69,6 +77,7 @@ export default function UserDashboard() {
     // Auto-trigger search if query params are present from Home page redirect
     if (keyword && location && !autoTriggered.current) {
       autoTriggered.current = true;
+      sessionStorage.removeItem('pendingSearch');
       handleSearch();
     }
   }, [keyword, location]);
