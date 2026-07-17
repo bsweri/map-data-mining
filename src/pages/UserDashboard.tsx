@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { hasExceededLocalQuota, getLocalQuota, incrementLocalQuota, FREE_DAILY_LIMIT } from '../lib/quota';
+import { FREE_DAILY_LIMIT } from '../lib/quota';
 import type { MapPlace } from '../types';
 import * as XLSX from 'xlsx';
 import { 
@@ -32,9 +32,11 @@ export default function UserDashboard() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const [keyword, setKeyword] = useState('');
-  const [location, setLocation] = useState('');
-  const [radius, setRadius] = useState<number>(3);
+  const [searchParams] = useSearchParams();
+  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
+  const [location, setLocation] = useState(searchParams.get('location') || '');
+  const [radius, setRadius] = useState<number>(Number(searchParams.get('radius')) || 3);
+  const autoTriggered = useRef(false);
   const [data, setData] = useState<MapPlace[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,13 +58,17 @@ export default function UserDashboard() {
   const [quotaUsed, setQuotaUsed] = useState(0);
 
   useEffect(() => {
-    // Initial quota load
-    if (isFree) {
-      setQuotaUsed(getLocalQuota().count);
-    } else {
-      setQuotaUsed(15); // Mocked used quota for paid tiers
-    }
+    // Initial quota load (saat ini ditangani API/Backend, set tampilan awal ke 0 atau statis)
+    setQuotaUsed(0); 
   }, [profile, isFree]);
+
+  useEffect(() => {
+    // Auto-trigger search if query params are present from Home page redirect
+    if (keyword && location && !autoTriggered.current) {
+      autoTriggered.current = true;
+      handleSearch();
+    }
+  }, [keyword, location]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -75,14 +81,9 @@ export default function UserDashboard() {
     };
   }, []);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!keyword || !location) return;
-
-    if (isFree && hasExceededLocalQuota()) {
-      setError('Batas kuota harian pencarian Anda telah habis. Silakan buat akun atau upgrade paket untuk pencarian tanpa batas.');
-      return;
-    }
 
     setIsLoading(true);
     setError(null);
@@ -90,22 +91,20 @@ export default function UserDashboard() {
     setCurrentKeyword(keyword);
 
     try {
-      const localData = getLocalQuota();
       const payload = { 
         keyword, 
         location, 
         radius,
         user_id: user?.id,
-        local_id: isFree ? localData.localId : null,
         min_rating: minRating,
-        phone_only: hasPhoneOnly
+        has_phone_only: hasPhoneOnly
       };
 
       const response = await fetch('https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/search-maps', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(user && { 'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` })
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
         body: JSON.stringify(payload),
       });
@@ -114,13 +113,6 @@ export default function UserDashboard() {
 
       if (!response.ok) {
         throw new Error(result.error || 'Terjadi kesalahan saat mengambil data dari server.');
-      }
-
-      if (isFree) {
-        incrementLocalQuota();
-        setQuotaUsed(getLocalQuota().count);
-      } else {
-        setQuotaUsed(prev => prev + 1);
       }
 
       let filtered = result.data || [];

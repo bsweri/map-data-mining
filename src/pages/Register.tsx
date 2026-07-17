@@ -17,7 +17,7 @@ export default function Register() {
       if (profile.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard' + window.location.search);
       }
     }
   }, [user, profile, navigate]);
@@ -42,7 +42,7 @@ export default function Register() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
+        redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}dashboard${window.location.search}`,
       }
     });
     if (error) {
