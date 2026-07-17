@@ -8,7 +8,6 @@ import AdSenseBanner from '../components/AdSenseBanner';
 import type { MapPlace } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { hasExceededLocalQuota, getLocalQuota, incrementLocalQuota } from '../lib/quota';
 import { CreditCard, ShieldCheck, Star, Phone, Map } from 'lucide-react';
 
 export default function Home() {
@@ -33,10 +32,9 @@ export default function Home() {
   }, [user, profile, navigate]);
 
   const handleSearch = async (keyword: string, location: string, radius: number) => {
-    // 1. Client-side Quota Check for Free Users
-    const isFree = !user || profile?.current_membership === 'free';
-    if (isFree && hasExceededLocalQuota()) {
-      setError('Batas kuota harian pencarian Anda telah habis. Silakan buat akun atau upgrade paket untuk pencarian tanpa batas.');
+    if (!user) {
+      alert("Please log in to use the data extraction feature. It's free to create an account!");
+      navigate('/auth');
       return;
     }
 
@@ -46,20 +44,18 @@ export default function Home() {
     setCurrentKeyword(keyword);
 
     try {
-      const localData = getLocalQuota();
       const payload = { 
         keyword, 
         location, 
         radius,
-        user_id: user?.id,
-        local_id: isFree ? localData.localId : null
+        user_id: user.id
       };
 
       const response = await fetch('https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/search-maps', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(user && { 'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` })
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
         body: JSON.stringify(payload),
       });
@@ -67,12 +63,7 @@ export default function Home() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Terjadi kesalahan saat mengambil data dari server.');
-      }
-
-      // 2. Increment Local Quota on Success (for free users)
-      if (isFree) {
-        incrementLocalQuota();
+        throw new Error(result.error || 'Failed to fetch data from the server.');
       }
 
       setData(result.data || []);
@@ -251,11 +242,16 @@ export default function Home() {
                       className="w-full bg-primary text-on-primary font-inter text-sm font-medium py-4 rounded-xl hover:brightness-110 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:bg-surface-variant disabled:text-outline"
                     >
                       {isDonating ? (
-                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      ) : 'Buy me a Coffee'}
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing...
+                        </>
+                      ) : (
+                        'Support our development'
+                      )}
                     </button>
                     <div className="flex justify-center items-center gap-4 grayscale opacity-60">
                       <CreditCard size={18} className="text-outline" />

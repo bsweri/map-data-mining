@@ -36,33 +36,52 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // 1. Quota & Identity Check
-    let membershipLevel = 'free';
-    if (user_id) {
-      const { data: profile } = await supabase.from('profiles').select('current_membership').eq('id', user_id).single();
-      if (profile) membershipLevel = profile.current_membership;
+    if (!user_id) {
+      return new Response(JSON.stringify({ error: "Authentication required. Please login to use the search feature." }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Ambil limit dari membership_plans
-    const { data: plan } = await supabase.from('membership_plans').select('daily_api_quota, monthly_api_quota').eq('level', membershipLevel).single();
-    if (!plan) throw new Error('Data paket langganan tidak ditemukan.');
+    const { data: profile } = await supabase.from('profiles').select('current_membership').eq('id', user_id).single();
+    const membershipLevel = profile?.current_membership || 'free';
 
-    // Hitung pemakaian bulan ini
-    const startOfMonth = new Date();
+    // Ambil limit dari membership_plans
+    const { data: plan } = await supabase.from('membership_plans').select('daily_api_quota, weekly_api_quota, monthly_api_quota').eq('level', membershipLevel).single();
+    if (!plan) throw new Error('Membership plan data not found.');
+
+    const now = new Date();
+    
+    // Daily Start
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0,0,0,0);
+    
+    // Weekly Start (assuming Monday as start of week)
+    const startOfWeek = new Date(now);
+    startOfWeek.setHours(0,0,0,0);
+    const day = startOfWeek.getDay();
+    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); 
+    startOfWeek.setDate(diff);
+
+    // Monthly Start
+    const startOfMonth = new Date(now);
     startOfMonth.setDate(1);
     startOfMonth.setHours(0,0,0,0);
     
-    let query = supabase.from('api_usage_logs').select('id', { count: 'exact', head: true }).gte('created_at', startOfMonth.toISOString());
-    if (user_id) {
-      query = query.eq('user_id', user_id);
-    } else if (local_id) {
-      query = query.eq('local_storage_id', local_id);
-    } else {
-      throw new Error('Identitas pengguna tidak ditemukan (user_id atau local_id).');
-    }
+    // Get all counts in one go
+    const [dailyRes, weeklyRes, monthlyRes] = await Promise.all([
+      supabase.from('api_usage_logs').select('id', { count: 'exact', head: true }).eq('user_id', user_id).gte('created_at', startOfDay.toISOString()),
+      supabase.from('api_usage_logs').select('id', { count: 'exact', head: true }).eq('user_id', user_id).gte('created_at', startOfWeek.toISOString()),
+      supabase.from('api_usage_logs').select('id', { count: 'exact', head: true }).eq('user_id', user_id).gte('created_at', startOfMonth.toISOString())
+    ]);
 
-    const { count: monthlyUsage } = await query;
-    if (monthlyUsage !== null && monthlyUsage >= plan.monthly_api_quota) {
-      throw new Error(`Batas kuota bulanan (${plan.monthly_api_quota}) telah tercapai.`);
+    const errorMessage = "We purchased Google Maps credit for the development of this project, so these limits are strictly enforced. Please upgrade your plan or wait for the quota to reset.";
+
+    if (dailyRes.count !== null && dailyRes.count >= plan.daily_api_quota) {
+      throw new Error(`Daily quota limit (${plan.daily_api_quota}) has been reached. ${errorMessage}`);
+    }
+    if (weeklyRes.count !== null && (plan.weekly_api_quota > 0) && weeklyRes.count >= plan.weekly_api_quota) {
+      throw new Error(`Weekly quota limit (${plan.weekly_api_quota}) has been reached. ${errorMessage}`);
+    }
+    if (monthlyRes.count !== null && monthlyRes.count >= plan.monthly_api_quota) {
+      throw new Error(`Monthly quota limit (${plan.monthly_api_quota}) has been reached. ${errorMessage}`);
     }
 
     // Lanjutkan Pencarian Google Maps
@@ -90,8 +109,7 @@ Deno.serve(async (req) => {
     // Log Activity (sebelum mengembalikan data kosong)
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
     await supabase.from('api_usage_logs').insert({
-      user_id: user_id || null,
-      local_storage_id: user_id ? null : local_id,
+      user_id: user_id,
       endpoint: 'search-maps',
       ip_address: clientIp
     });

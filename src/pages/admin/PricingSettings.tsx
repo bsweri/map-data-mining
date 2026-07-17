@@ -8,6 +8,7 @@ interface Plan {
   price_idr: number;
   price_usd: number;
   daily_api_quota: number;
+  weekly_api_quota: number;
   monthly_api_quota: number;
 }
 
@@ -43,6 +44,7 @@ export default function PricingSettings() {
           price_idr: p.price_idr,
           price_usd: p.price_usd,
           daily_api_quota: p.daily_api_quota,
+          weekly_api_quota: p.weekly_api_quota,
           monthly_api_quota: p.monthly_api_quota
         }).eq('id', p.id)
       );
@@ -120,6 +122,15 @@ export default function PricingSettings() {
                   type="number"
                   value={plan.daily_api_quota}
                   onChange={(e) => handleUpdate(plan.id, 'daily_api_quota', Number(e.target.value))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-500">Batas API Mingguan</label>
+                <input 
+                  type="number"
+                  value={plan.weekly_api_quota}
+                  onChange={(e) => handleUpdate(plan.id, 'weekly_api_quota', Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                 />
               </div>
