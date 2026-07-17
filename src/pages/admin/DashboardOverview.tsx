@@ -42,7 +42,7 @@ export default function DashboardOverview() {
   const [isApplyingConfig, setIsApplyingConfig] = useState(false);
 
   // Donation state
-  const [donationAmount, setDonationAmount] = useState('5.00');
+
   const [isDonating, setIsDonating] = useState(false);
 
   // Live Logs state

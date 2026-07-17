@@ -17,7 +17,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [currentKeyword, setCurrentKeyword] = useState('');
   
-  const [donationAmount, setDonationAmount] = useState<string>('5');
+
   const [isDonating, setIsDonating] = useState(false);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -247,7 +247,7 @@ export default function Home() {
                     </div>
                     <button 
                       onClick={handlePayPalDonation}
-                      disabled={isDonating || parseFloat(donationAmount || '0') < 5}
+                      disabled={isDonating}
                       className="w-full bg-primary text-on-primary font-inter text-sm font-medium py-4 rounded-xl hover:brightness-110 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:bg-surface-variant disabled:text-outline"
                     >
                       {isDonating ? (
