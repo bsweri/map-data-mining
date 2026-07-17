@@ -31,9 +31,16 @@ export default function Home() {
     }
   }, [user, profile, navigate]);
 
-  const handleSearch = async (keyword: string, location: string, radius: number) => {
+  const handleSearch = async (keyword: string, location: string, radius: number, minRating: number, hasPhoneOnly: boolean) => {
     if (!user) {
-      navigate('/login');
+      const searchParams = new URLSearchParams({ 
+        keyword, 
+        location, 
+        radius: radius.toString(),
+        minRating: minRating.toString(),
+        hasPhoneOnly: hasPhoneOnly.toString()
+      });
+      navigate(`/login?${searchParams.toString()}`);
       return;
     }
 

@@ -48,9 +48,12 @@ export default function UserDashboard() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(3);
   const [localSearchQuery, setLocalSearchQuery] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [minRating, setMinRating] = useState<number>(0);
-  const [hasPhoneOnly, setHasPhoneOnly] = useState(false);
+  const parsedMinRating = Number(searchParams.get('minRating')) || 0;
+  const parsedHasPhone = searchParams.get('hasPhoneOnly') === 'true';
+  
+  const [showAdvanced, setShowAdvanced] = useState(parsedMinRating > 0 || parsedHasPhone);
+  const [minRating, setMinRating] = useState<number>(parsedMinRating);
+  const [hasPhoneOnly, setHasPhoneOnly] = useState(parsedHasPhone);
 
   // Dynamic quota
   const isFree = !user || profile?.current_membership === 'free';
