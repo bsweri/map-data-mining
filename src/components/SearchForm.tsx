@@ -146,6 +146,9 @@ export default function SearchForm({ onSearch, isLoading }: SearchFormProps) {
               </>
             )}
           </button>
+          <div className="mt-4 text-center">
+            <p className="text-xs text-on-surface-variant font-medium">Your remaining free daily usage: <span className="text-primary font-bold">Login to view</span></p>
+          </div>
         </div>
       </form>
     </div>

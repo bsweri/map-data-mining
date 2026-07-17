@@ -33,7 +33,6 @@ export default function Home() {
 
   const handleSearch = async (keyword: string, location: string, radius: number) => {
     if (!user) {
-      alert("Please log in to use the data extraction feature. It's free to create an account!");
       navigate('/auth');
       return;
     }
