@@ -17,7 +17,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [currentKeyword, setCurrentKeyword] = useState('');
   
-  const [donationAmount, setDonationAmount] = useState<string>('1');
+  const [donationAmount, setDonationAmount] = useState<string>('5');
   const [isDonating, setIsDonating] = useState(false);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -84,17 +84,13 @@ export default function Home() {
   };
 
   const handlePayPalDonation = () => {
-    const amountStr = donationAmount.replace(/[^0-9.]/g, '');
-    const amount = parseFloat(amountStr);
-    if (!amount || amount < 1) {
-      alert('Minimal donasi adalah $1.00');
-      return;
-    }
+    // Kunci donasi ke 5 USD
+    const amount = 5;
 
     setIsDonating(true);
     
     // Bentuk URL donasi PayPal Mode Production ke akun tujuan eriandi.susanto@gmail.com
-    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=eriandi.susanto@gmail.com&currency_code=USD&amount=${amount.toFixed(2)}&item_name=GeoExtract+Support+Donation`;
+    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=eriandi.susanto@gmail.com&currency_code=USD&amount=${amount.toFixed(2)}&item_name=GeoExtract+Support`;
     
     // Redirect user ke PayPal
     window.location.href = paypalUrl;
@@ -233,28 +229,25 @@ export default function Home() {
                       Secure Payment
                     </span>
                   </div>
-                  <h3 className="font-hanken text-2xl font-bold text-on-surface mb-2">Donate via PayPal</h3>
+                  <h3 className="font-hanken text-2xl font-bold text-on-surface mb-2">Buy me a Coffee</h3>
                   <p className="text-inter text-sm text-on-surface-variant mb-6">Support our server costs to keep GeoExtract free for basic users.</p>
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block font-inter text-sm font-medium text-on-surface-variant mb-2">Custom Amount (USD)</label>
+                      <label className="block font-inter text-sm font-medium text-on-surface-variant mb-2">Amount (USD)</label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-outline">$</span>
                         <input 
                           type="text" 
-                          value={donationAmount}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/[^0-9.]/g, '');
-                            setDonationAmount(val);
-                          }}
-                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-surface-lowest text-on-surface" 
+                          value="5.00"
+                          readOnly
+                          className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant bg-surface-variant/50 text-on-surface opacity-80 cursor-not-allowed font-semibold" 
                         />
                       </div>
                     </div>
                     <button 
                       onClick={handlePayPalDonation}
-                      disabled={isDonating || parseFloat(donationAmount || '0') < 1}
+                      disabled={isDonating || parseFloat(donationAmount || '0') < 5}
                       className="w-full bg-primary text-on-primary font-inter text-sm font-medium py-4 rounded-xl hover:brightness-110 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:bg-surface-variant disabled:text-outline"
                     >
                       {isDonating ? (
@@ -262,7 +255,7 @@ export default function Home() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                      ) : 'Pay with PayPal'}
+                      ) : 'Buy me a Coffee'}
                     </button>
                     <div className="flex justify-center items-center gap-4 grayscale opacity-60">
                       <CreditCard size={18} className="text-outline" />

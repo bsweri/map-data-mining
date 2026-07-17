@@ -42,7 +42,7 @@ export default function DashboardOverview() {
   const [isApplyingConfig, setIsApplyingConfig] = useState(false);
 
   // Donation state
-  const [donationAmount, setDonationAmount] = useState('1.00');
+  const [donationAmount, setDonationAmount] = useState('5.00');
   const [isDonating, setIsDonating] = useState(false);
 
   // Live Logs state
@@ -160,11 +160,11 @@ export default function DashboardOverview() {
 
   const handlePayPalDonation = () => {
     setIsDonating(true);
-    const usdAmount = parseFloat(donationAmount.replace(/[^0-9.]/g, ''));
-    const finalAmount = isNaN(usdAmount) || usdAmount <= 0 ? 50.00 : usdAmount;
+    // Kunci donasi ke 5 USD
+    const finalAmount = 5;
     
     // Bentuk URL donasi PayPal Mode Production ke akun tujuan eriandi.susanto@gmail.com
-    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=eriandi.susanto@gmail.com&currency_code=USD&amount=${finalAmount.toFixed(2)}&item_name=GeoExtract+Development+Support`;
+    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=eriandi.susanto@gmail.com&currency_code=USD&amount=${finalAmount.toFixed(2)}&item_name=GeoExtract+Development+Support`;
     
     window.location.href = paypalUrl;
   };
@@ -442,21 +442,21 @@ export default function DashboardOverview() {
             <div className="max-w-xl">
               <div className="inline-flex items-center gap-2 bg-surface-container-lowest px-3 py-1.5 rounded-full border border-primary/20 mb-4 shadow-sm">
                 <CheckCircle className="text-primary" size={14} />
-                <span className="font-inter text-[10px] font-bold text-primary uppercase tracking-wider">SECURE INFRASTRUCTURE FUND</span>
+                <span className="font-inter text-[10px] font-bold text-primary uppercase tracking-wider">SUPPORT OUR DEVELOPMENT</span>
               </div>
-              <h2 className="font-hanken text-2xl font-bold text-on-surface mb-3">Support GeoExtract Development</h2>
+              <h2 className="font-hanken text-2xl font-bold text-on-surface mb-3">Buy me a Coffee</h2>
               <p className="font-inter text-sm text-on-surface-variant leading-relaxed max-w-lg">
-                Contribute to our open geospatial research fund. All transactions are securely handled via PayPal with end-to-end encryption.
+                Contribute to our open geospatial research fund. All transactions are securely handled with end-to-end encryption.
               </p>
             </div>
             <div className="flex flex-col items-center md:items-end gap-3 flex-shrink-0">
               <div className="text-center md:text-right w-full">
-                <p className="font-inter text-[10px] font-semibold text-on-surface-variant mb-1.5 uppercase tracking-wider">Enter Amount (USD)</p>
+                <p className="font-inter text-[10px] font-semibold text-on-surface-variant mb-1.5 uppercase tracking-wider">Amount (USD)</p>
                 <input 
-                  className="text-center font-hanken text-lg font-bold bg-surface-container-lowest border border-outline-variant rounded-xl w-32 md:w-40 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface shadow-inner" 
+                  className="text-center font-hanken text-lg font-bold bg-surface-variant/50 border border-outline-variant rounded-xl w-32 md:w-40 py-2 text-on-surface opacity-80 cursor-not-allowed" 
                   type="text" 
-                  value={donationAmount}
-                  onChange={(e) => setDonationAmount(e.target.value)}
+                  value="5.00"
+                  readOnly
                 />
               </div>
               <button 
@@ -464,7 +464,7 @@ export default function DashboardOverview() {
                 disabled={isDonating}
                 className="w-full md:w-auto px-8 py-3 bg-primary text-on-primary rounded-xl font-bold font-inter text-xs shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-70"
               >
-                {isDonating ? 'Connecting...' : 'Donate via PayPal'}
+                {isDonating ? 'Connecting...' : 'Buy me a Coffee'}
               </button>
             </div>
           </div>
