@@ -230,7 +230,7 @@ export default function Home() {
                     </span>
                   </div>
                   <h3 className="font-hanken text-2xl font-bold text-on-surface mb-2">Buy me a Coffee</h3>
-                  <p className="text-inter text-sm text-on-surface-variant mb-6">Support our server costs to keep GeoExtract free for basic users.</p>
+                  <p className="text-inter text-sm text-on-surface-variant mb-6">Love GeoExtract? Buy us a coffee to keep the innovation brewing and the features growing.</p>
                   
                   <div className="space-y-4">
                     <div>
