@@ -33,7 +33,7 @@ export default function Home() {
 
   const handleSearch = async (keyword: string, location: string, radius: number) => {
     if (!user) {
-      navigate('/auth');
+      navigate('/login');
       return;
     }
 
