@@ -7,9 +7,9 @@ interface Plan {
   level: string;
   price_idr: number;
   price_usd: number;
-  daily_api_quota: number;
-  weekly_api_quota: number;
-  monthly_api_quota: number;
+  daily_credit_quota: number;
+  weekly_credit_quota: number;
+  monthly_credit_quota: number;
 }
 
 export default function PricingSettings() {
@@ -27,7 +27,7 @@ export default function PricingSettings() {
       .from('membership_plans')
       .select('*')
       .order('price_idr', { ascending: true });
-    
+
     if (data) setPlans(data);
     setIsLoading(false);
   }
@@ -39,13 +39,13 @@ export default function PricingSettings() {
   const saveChanges = async () => {
     setIsSaving(true);
     try {
-      const updates = plans.map(p => 
+      const updates = plans.map(p =>
         supabase.from('membership_plans').update({
           price_idr: p.price_idr,
           price_usd: p.price_usd,
-          daily_api_quota: p.daily_api_quota,
-          weekly_api_quota: p.weekly_api_quota,
-          monthly_api_quota: p.monthly_api_quota
+          daily_credit_quota: p.daily_credit_quota,
+          weekly_credit_quota: p.weekly_credit_quota,
+          monthly_credit_quota: p.monthly_credit_quota
         }).eq('id', p.id)
       );
 
@@ -64,7 +64,7 @@ export default function PricingSettings() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-slate-800">Pricing & Quota Settings</h1>
-        <button 
+        <button
           onClick={saveChanges}
           disabled={isSaving}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold transition-colors disabled:opacity-50"
@@ -79,22 +79,21 @@ export default function PricingSettings() {
           <div key={plan.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-slate-900 capitalize">{plan.level} Plan</h3>
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                plan.level === 'platinum' ? 'bg-slate-800 text-slate-100' :
-                plan.level === 'gold' ? 'bg-yellow-100 text-yellow-800' :
-                plan.level === 'silver' ? 'bg-slate-200 text-slate-800' :
-                'bg-blue-50 text-blue-600'
-              }`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${plan.level === 'business' ? 'bg-slate-800 text-slate-100' :
+                  plan.level === 'pro' ? 'bg-yellow-100 text-yellow-800' :
+                    plan.level === 'starter' ? 'bg-slate-200 text-slate-800' :
+                      'bg-blue-50 text-blue-600'
+                }`}>
                 {plan.level}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">Harga per Bulan (IDR)</label>
+                <label className="text-xs font-medium text-slate-500">Price per Month (IDR)</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Rp</span>
-                  <input 
+                  <input
                     type="number"
                     value={plan.price_idr}
                     onChange={(e) => handleUpdate(plan.id, 'price_idr', Number(e.target.value))}
@@ -104,10 +103,10 @@ export default function PricingSettings() {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">Harga per Bulan (USD)</label>
+                <label className="text-xs font-medium text-slate-500">Price per Month (USD)</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
-                  <input 
+                  <input
                     type="number"
                     value={plan.price_usd}
                     onChange={(e) => handleUpdate(plan.id, 'price_usd', Number(e.target.value))}
@@ -117,29 +116,29 @@ export default function PricingSettings() {
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">Batas API Harian</label>
-                <input 
+                <label className="text-xs font-medium text-slate-500">Daily Credit Limit</label>
+                <input
                   type="number"
-                  value={plan.daily_api_quota}
-                  onChange={(e) => handleUpdate(plan.id, 'daily_api_quota', Number(e.target.value))}
+                  value={plan.daily_credit_quota}
+                  onChange={(e) => handleUpdate(plan.id, 'daily_credit_quota', Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">Batas API Mingguan</label>
-                <input 
+                <label className="text-xs font-medium text-slate-500">Weekly Credit Limit</label>
+                <input
                   type="number"
-                  value={plan.weekly_api_quota}
-                  onChange={(e) => handleUpdate(plan.id, 'weekly_api_quota', Number(e.target.value))}
+                  value={plan.weekly_credit_quota}
+                  onChange={(e) => handleUpdate(plan.id, 'weekly_credit_quota', Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">Batas API Bulanan</label>
-                <input 
+                <label className="text-xs font-medium text-slate-500">Monthly Credit Limit</label>
+                <input
                   type="number"
-                  value={plan.monthly_api_quota}
-                  onChange={(e) => handleUpdate(plan.id, 'monthly_api_quota', Number(e.target.value))}
+                  value={plan.monthly_credit_quota}
+                  onChange={(e) => handleUpdate(plan.id, 'monthly_credit_quota', Number(e.target.value))}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                 />
               </div>

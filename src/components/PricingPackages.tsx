@@ -14,8 +14,8 @@ interface Plan {
   discount_3_months: number;
   discount_6_months: number;
   discount_12_months: number;
-  daily_api_quota: number;
-  monthly_api_quota: number;
+  daily_credit_quota: number;
+  monthly_credit_quota: number;
 }
 
 const PERIODS = [
@@ -138,11 +138,11 @@ export default function PricingPackages() {
               <ul className="mt-6 space-y-4 flex-1">
                 <li className="flex gap-3">
                   <Check className="w-5 h-5 text-primary shrink-0" />
-                  <span className="text-on-surface-variant text-sm">Batas Harian: <strong>{plan.daily_api_quota}</strong> request</span>
+                  <span className="text-on-surface-variant text-sm">Batas Harian: <strong>{plan.daily_credit_quota}</strong> request</span>
                 </li>
                 <li className="flex gap-3">
                   <Check className="w-5 h-5 text-primary shrink-0" />
-                  <span className="text-on-surface-variant text-sm">Batas Bulanan: <strong>{plan.monthly_api_quota}</strong> request</span>
+                  <span className="text-on-surface-variant text-sm">Batas Bulanan: <strong>{plan.monthly_credit_quota}</strong> request</span>
                 </li>
                 <li className="flex gap-3">
                   <Check className="w-5 h-5 text-primary shrink-0" />
@@ -153,7 +153,7 @@ export default function PricingPackages() {
               <button
                 onClick={() => handleSubscribe(plan)}
                 className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-xl text-center text-sm font-semibold transition-colors ${
-                  plan.level === 'platinum' ? 'bg-inverse-surface text-inverse-on-surface hover:bg-inverse-surface/90' : 'bg-primary text-on-primary hover:bg-primary/90'
+                  plan.level === 'business' ? 'bg-inverse-surface text-inverse-on-surface hover:bg-inverse-surface/90' : 'bg-primary text-on-primary hover:bg-primary/90'
                 }`}
               >
                 Pilih {plan.level}

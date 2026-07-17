@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     const membershipLevel = profile?.current_membership || 'free';
 
     // Ambil limit dari membership_plans
-    const { data: plan } = await supabase.from('membership_plans').select('daily_api_quota, weekly_api_quota, monthly_api_quota').eq('level', membershipLevel).single();
+    const { data: plan } = await supabase.from('membership_plans').select('daily_credit_quota, weekly_credit_quota, monthly_credit_quota').eq('level', membershipLevel).single();
     if (!plan) throw new Error('Membership plan data not found.');
 
     const now = new Date();
@@ -74,14 +74,14 @@ Deno.serve(async (req) => {
 
     const errorMessage = "We purchased Google Maps credit for the development of this project, so these limits are strictly enforced. Please upgrade your plan or wait for the quota to reset.";
 
-    if (dailyRes.count !== null && dailyRes.count >= plan.daily_api_quota) {
-      throw new Error(`Daily quota limit (${plan.daily_api_quota}) has been reached. ${errorMessage}`);
+    if (dailyRes.count !== null && dailyRes.count >= plan.daily_credit_quota) {
+      throw new Error(`Daily quota limit (${plan.daily_credit_quota}) has been reached. ${errorMessage}`);
     }
-    if (weeklyRes.count !== null && (plan.weekly_api_quota > 0) && weeklyRes.count >= plan.weekly_api_quota) {
-      throw new Error(`Weekly quota limit (${plan.weekly_api_quota}) has been reached. ${errorMessage}`);
+    if (weeklyRes.count !== null && (plan.weekly_credit_quota > 0) && weeklyRes.count >= plan.weekly_credit_quota) {
+      throw new Error(`Weekly quota limit (${plan.weekly_credit_quota}) has been reached. ${errorMessage}`);
     }
-    if (monthlyRes.count !== null && monthlyRes.count >= plan.monthly_api_quota) {
-      throw new Error(`Monthly quota limit (${plan.monthly_api_quota}) has been reached. ${errorMessage}`);
+    if (monthlyRes.count !== null && monthlyRes.count >= plan.monthly_credit_quota) {
+      throw new Error(`Monthly quota limit (${plan.monthly_credit_quota}) has been reached. ${errorMessage}`);
     }
 
     // Lanjutkan Pencarian Google Maps

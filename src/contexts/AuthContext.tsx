@@ -7,7 +7,7 @@ interface Profile {
   id: string;
   email: string;
   role: 'admin' | 'user';
-  current_membership: 'free' | 'silver' | 'gold' | 'platinum';
+  current_membership: 'free' | 'starter' | 'pro' | 'business';
   membership_expires_at: string | null;
 }
 

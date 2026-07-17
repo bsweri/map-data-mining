@@ -116,9 +116,9 @@ export default function ManageUsers() {
           >
             <option value="all">All Levels</option>
             <option value="free">Free Users</option>
-            <option value="silver">Silver</option>
-            <option value="gold">Gold</option>
-            <option value="platinum">Platinum</option>
+            <option value="starter">Starter</option>
+            <option value="pro">Pro</option>
+            <option value="business">Business</option>
           </select>
         </div>
       </header>
@@ -160,9 +160,9 @@ export default function ManageUsers() {
                       <span className="font-inter text-xs text-outline font-semibold">N/A</span>
                     ) : (
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        user.current_membership === 'platinum' ? 'bg-slate-800 text-slate-100' :
-                        user.current_membership === 'gold' ? 'bg-yellow-100 text-yellow-800' :
-                        user.current_membership === 'silver' ? 'bg-slate-200 text-slate-800' :
+                        user.current_membership === 'business' ? 'bg-slate-800 text-slate-100' :
+                        user.current_membership === 'pro' ? 'bg-yellow-100 text-yellow-800' :
+                        user.current_membership === 'starter' ? 'bg-slate-200 text-slate-800' :
                         'bg-blue-50 text-blue-600'
                       }`}>
                         {user.current_membership}
@@ -260,9 +260,9 @@ export default function ManageUsers() {
                       className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     >
                       <option value="free">Free</option>
-                      <option value="silver">Silver</option>
-                      <option value="gold">Gold</option>
-                      <option value="platinum">Platinum</option>
+                      <option value="starter">Starter</option>
+                      <option value="pro">Pro</option>
+                      <option value="business">Business</option>
                     </select>
                   </div>
                 )}
