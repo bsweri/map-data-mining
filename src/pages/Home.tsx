@@ -17,7 +17,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [currentKeyword, setCurrentKeyword] = useState('');
   
-  const [donationAmount, setDonationAmount] = useState<string>('50000');
+  const [donationAmount, setDonationAmount] = useState<string>('1');
   const [isDonating, setIsDonating] = useState(false);
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -84,18 +84,20 @@ export default function Home() {
   };
 
   const handlePayPalDonation = () => {
-    const amountStr = donationAmount.replace(/\D/g, '');
-    const amount = parseInt(amountStr, 10);
-    if (!amount || amount < 10000) {
-      alert('Minimal donasi adalah Rp 10.000');
+    const amountStr = donationAmount.replace(/[^0-9.]/g, '');
+    const amount = parseFloat(amountStr);
+    if (!amount || amount < 1) {
+      alert('Minimal donasi adalah $1.00');
       return;
     }
 
     setIsDonating(true);
-    setTimeout(() => {
-      alert(`Simulasi Donasi: Pembayaran Rp ${amount.toLocaleString('id-ID')} melalui PayPal berhasil! Terima kasih atas dukungan Anda.`);
-      setIsDonating(false);
-    }, 1500);
+    
+    // Bentuk URL donasi PayPal Mode Production ke akun tujuan eriandi.susanto@gmail.com
+    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=eriandi.susanto@gmail.com&currency_code=USD&amount=${amount.toFixed(2)}&item_name=GeoExtract+Support+Donation`;
+    
+    // Redirect user ke PayPal
+    window.location.href = paypalUrl;
   };
 
   return (
@@ -236,14 +238,14 @@ export default function Home() {
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block font-inter text-sm font-medium text-on-surface-variant mb-2">Custom Amount (IDR)</label>
+                      <label className="block font-inter text-sm font-medium text-on-surface-variant mb-2">Custom Amount (USD)</label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-outline">Rp</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-outline">$</span>
                         <input 
                           type="text" 
                           value={donationAmount}
                           onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, '');
+                            const val = e.target.value.replace(/[^0-9.]/g, '');
                             setDonationAmount(val);
                           }}
                           className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-surface-lowest text-on-surface" 
@@ -252,7 +254,7 @@ export default function Home() {
                     </div>
                     <button 
                       onClick={handlePayPalDonation}
-                      disabled={isDonating || parseInt(donationAmount || '0') < 10000}
+                      disabled={isDonating || parseFloat(donationAmount || '0') < 1}
                       className="w-full bg-primary text-on-primary font-inter text-sm font-medium py-4 rounded-xl hover:brightness-110 transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2 disabled:bg-surface-variant disabled:text-outline"
                     >
                       {isDonating ? (

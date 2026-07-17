@@ -42,7 +42,7 @@ export default function DashboardOverview() {
   const [isApplyingConfig, setIsApplyingConfig] = useState(false);
 
   // Donation state
-  const [donationAmount, setDonationAmount] = useState('$50.00');
+  const [donationAmount, setDonationAmount] = useState('1.00');
   const [isDonating, setIsDonating] = useState(false);
 
   // Live Logs state
@@ -160,10 +160,13 @@ export default function DashboardOverview() {
 
   const handlePayPalDonation = () => {
     setIsDonating(true);
-    setTimeout(() => {
-      setIsDonating(false);
-      alert(`Pembayaran donasi sebesar ${donationAmount} melalui PayPal berhasil (Simulasi). Terima kasih!`);
-    }, 1500);
+    const usdAmount = parseFloat(donationAmount.replace(/[^0-9.]/g, ''));
+    const finalAmount = isNaN(usdAmount) || usdAmount <= 0 ? 50.00 : usdAmount;
+    
+    // Bentuk URL donasi PayPal Mode Production ke akun tujuan eriandi.susanto@gmail.com
+    const paypalUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=eriandi.susanto@gmail.com&currency_code=USD&amount=${finalAmount.toFixed(2)}&item_name=GeoExtract+Development+Support`;
+    
+    window.location.href = paypalUrl;
   };
 
   if (isLoading) return <div className="p-8 text-center text-sm font-semibold text-on-surface-variant">Loading dashboard stats...</div>;
