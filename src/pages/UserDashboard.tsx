@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { FREE_DAILY_LIMIT } from '../lib/quota';
 import type { MapPlace } from '../types';
 import * as XLSX from 'xlsx';
 import { 
@@ -62,24 +61,66 @@ export default function UserDashboard() {
   const [minRating, setMinRating] = useState<number>(parsedMinRating);
   const [hasPhoneOnly, setHasPhoneOnly] = useState(parsedHasPhone);
 
-  // Dynamic quota
-  const isFree = !user || profile?.current_membership === 'free';
-  const quotaLimit = isFree ? FREE_DAILY_LIMIT : 100;
-  const [quotaUsed, setQuotaUsed] = useState(0);
+  // Credit System States
+  const [credit, setCredit] = useState(0);
+  const [status, setStatus] = useState('active');
+  const [activeUntil, setActiveUntil] = useState<string | null>(null);
+  const [lastExtractionAt, setLastExtractionAt] = useState<string | null>(null);
+  const [adminSettings, setAdminSettings] = useState<{
+    extraction_interval_seconds: number;
+    ads_min_credit: number;
+    active_period_price_credit: number;
+    active_period_days_addition: number;
+  } | null>(null);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [isBuyingActivePeriod, setIsBuyingActivePeriod] = useState(false);
 
   useEffect(() => {
-    // Initial quota load (saat ini ditangani API/Backend, set tampilan awal ke 0 atau statis)
-    setQuotaUsed(0); 
-  }, [profile, isFree]);
+    async function loadData() {
+       if (user) {
+          const { data: p } = await supabase.from('profiles').select('credit, status, active_until, last_extraction_at').eq('id', user.id).single();
+          if (p) {
+             setCredit(p.credit);
+             setStatus(p.status);
+             setActiveUntil(p.active_until);
+             setLastExtractionAt(p.last_extraction_at);
+          }
+       }
+       const { data: s } = await supabase.from('admin_settings').select('*').single();
+       if (s) {
+          setAdminSettings(s);
+       }
+    }
+    loadData();
+  }, [user]);
+
+  useEffect(() => {
+    if (!lastExtractionAt || !adminSettings) return;
+    
+    const intervalId = setInterval(() => {
+       const last = new Date(lastExtractionAt).getTime();
+       const now = new Date().getTime();
+       const diffSeconds = (now - last) / 1000;
+       const remaining = Math.ceil(adminSettings.extraction_interval_seconds - diffSeconds);
+       
+       if (remaining > 0) {
+          setCooldownRemaining(remaining);
+       } else {
+          setCooldownRemaining(0);
+       }
+    }, 1000);
+    
+    return () => clearInterval(intervalId);
+  }, [lastExtractionAt, adminSettings]);
 
   useEffect(() => {
     // Auto-trigger search if query params are present from Home page redirect
-    if (keyword && location && !autoTriggered.current) {
+    if (keyword && location && !autoTriggered.current && status === 'active' && credit >= 1) {
       autoTriggered.current = true;
       sessionStorage.removeItem('pendingSearch');
       handleSearch();
     }
-  }, [keyword, location]);
+  }, [keyword, location, status, credit]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -106,9 +147,7 @@ export default function UserDashboard() {
         keyword, 
         location, 
         radius,
-        user_id: user?.id,
-        min_rating: minRating,
-        has_phone_only: hasPhoneOnly
+        user_id: user?.id
       };
 
       const response = await fetch('https://egtnncvpaznfdzwpbfse.supabase.co/functions/v1/search-maps', {
@@ -126,6 +165,11 @@ export default function UserDashboard() {
         throw new Error(result.error || 'Terjadi kesalahan saat mengambil data dari server.');
       }
 
+      if (result.creditsUsed) {
+         setCredit(prev => Math.max(0, prev - result.creditsUsed));
+      }
+      setLastExtractionAt(new Date().toISOString());
+
       let filtered = result.data || [];
       if (minRating > 0) {
         filtered = filtered.filter((place: any) => (place.rating || 0) >= minRating);
@@ -140,6 +184,30 @@ export default function UserDashboard() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleBuyActivePeriod = async () => {
+     if (credit < (adminSettings?.active_period_price_credit || 0)) {
+        alert('Kredit tidak cukup');
+        return;
+     }
+     setIsBuyingActivePeriod(true);
+     try {
+        const { data, error } = await supabase.rpc('buy_active_period');
+        if (error) throw error;
+        if (data.success) {
+           setCredit(data.new_credit);
+           setActiveUntil(data.new_active_until);
+           setStatus('active');
+           alert('Masa aktif berhasil diperpanjang!');
+        } else {
+           alert(data.error);
+        }
+     } catch (err: any) {
+        alert(err.message || 'Terjadi kesalahan sistem.');
+     } finally {
+        setIsBuyingActivePeriod(false);
+     }
   };
 
   // Filtered data for display and export
@@ -201,12 +269,7 @@ export default function UserDashboard() {
     window.location.href = import.meta.env.BASE_URL || '/';
   };
 
-  const remainingQuota = Math.max(0, quotaLimit - quotaUsed);
-  const quotaPercentage = (remainingQuota / quotaLimit) * 100;
-  const membershipCapitalized = (() => {
-    const mem = profile?.current_membership || 'Free';
-    return mem.charAt(0).toUpperCase() + mem.slice(1);
-  })();
+  const showAds = adminSettings && credit < adminSettings.ads_min_credit && status === 'grace';
 
   return (
     <div className="min-h-screen bg-surface text-on-surface font-inter flex">
@@ -264,24 +327,30 @@ export default function UserDashboard() {
                 <span className="font-inter text-sm font-bold text-on-surface truncate" title={profile?.email}>
                   {profile?.email ? profile.email.split('@')[0] : 'User'}
                 </span>
-                <span className="text-xs text-on-surface-variant capitalize">{membershipCapitalized} Member</span>
+                <span className="text-xs text-on-surface-variant capitalize">Role: {profile?.role || 'Member'}</span>
               </div>
             </div>
+            
             <div className="space-y-2">
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                <span>Query Credits</span>
-                <span>{remainingQuota} / {quotaLimit}</span>
+                <span>Credit Balance</span>
+                <span className="text-primary text-sm font-bold">{credit}</span>
               </div>
-              <div className="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    remainingQuota <= 1 ? 'bg-red-500' : 'bg-primary'
-                  }`} 
-                  style={{ width: `${quotaPercentage}%` }}
-                ></div>
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
+                <span>Status</span>
+                <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${status === 'active' ? 'bg-green-100 text-green-700' : status === 'grace' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>{status.toUpperCase()}</span>
               </div>
-              <button className="w-full mt-2 py-2 bg-primary text-on-primary rounded-lg font-inter text-xs font-semibold hover:opacity-90 active:scale-95 transition-all">
-                Upgrade Plan
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
+                <span>Active Until</span>
+                <span>{activeUntil ? new Date(activeUntil).toLocaleDateString() : 'N/A'}</span>
+              </div>
+              
+              <button 
+                onClick={handleBuyActivePeriod}
+                disabled={isBuyingActivePeriod || !adminSettings || credit < adminSettings.active_period_price_credit}
+                className="w-full mt-2 py-2 bg-primary text-on-primary rounded-lg font-inter text-xs font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isBuyingActivePeriod ? 'Processing...' : `Extend Active Period (${adminSettings?.active_period_price_credit || '-'} Cr)`}
               </button>
             </div>
           </div>
@@ -437,7 +506,7 @@ export default function UserDashboard() {
 
                   <button 
                     type="submit"
-                    disabled={isLoading || !keyword || !location || !isOnline}
+                    disabled={isLoading || !keyword || !location || !isOnline || cooldownRemaining > 0 || status !== 'active' || credit < 1}
                     className="px-8 py-3 bg-primary text-on-primary rounded-lg font-bold font-inter text-sm shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 disabled:bg-surface-variant disabled:text-outline disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
@@ -448,6 +517,12 @@ export default function UserDashboard() {
                         </svg>
                         Running...
                       </>
+                    ) : cooldownRemaining > 0 ? (
+                      `Cooldown: ${cooldownRemaining}s`
+                    ) : status !== 'active' ? (
+                      'Status Inactive'
+                    ) : credit < 1 ? (
+                      'Out of Credit'
                     ) : (
                       <>
                         <Search size={16} />
@@ -474,14 +549,17 @@ export default function UserDashboard() {
                 </div>
                 <Zap className="absolute -right-4 -bottom-4 text-9xl opacity-10" size={144} />
               </div>
-              <div className="bg-surface-container-high p-6 rounded-xl shadow-sm border border-outline-variant flex-1 flex flex-col justify-center">
-                <span className="font-inter text-xs text-on-surface-variant uppercase tracking-widest font-bold">Sponsored Insights</span>
-                <div className="mt-2 text-on-surface font-inter text-sm font-semibold">Need real-time phone verification?</div>
-                <a className="mt-3 text-primary font-bold text-xs underline flex items-center gap-1" href="#" onClick={(e) => e.preventDefault()}>
-                  Integrate VerifyAPI
-                  <ExternalLink size={12} />
-                </a>
-              </div>
+              
+              {showAds && (
+                 <div className="bg-surface-container-high p-6 rounded-xl shadow-sm border border-outline-variant flex-1 flex flex-col justify-center">
+                   <span className="font-inter text-xs text-on-surface-variant uppercase tracking-widest font-bold">Sponsored Insights</span>
+                   <div className="mt-2 text-on-surface font-inter text-sm font-semibold">Need real-time phone verification?</div>
+                   <a className="mt-3 text-primary font-bold text-xs underline flex items-center gap-1" href="#" onClick={(e) => e.preventDefault()}>
+                     Integrate VerifyAPI
+                     <ExternalLink size={12} />
+                   </a>
+                 </div>
+              )}
             </div>
           </section>
           {/* Results Section */}

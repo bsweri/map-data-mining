@@ -40,61 +40,51 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Authentication required. Please login to use the search feature." }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const { data: profile } = await supabase.from('profiles').select('current_membership').eq('id', user_id).single();
-    const membershipLevel = profile?.current_membership || 'free';
+    const { data: profile } = await supabase.from('profiles').select('status, credit, last_extraction_at').eq('id', user_id).single();
+    if (!profile) {
+       throw new Error('Profile not found.');
+    }
 
-    // Ambil limit dari membership_plans
-    const { data: plan } = await supabase.from('membership_plans').select('daily_credit_quota, weekly_credit_quota, monthly_credit_quota').eq('level', membershipLevel).single();
-    if (!plan) throw new Error('Membership plan data not found.');
+    if (profile.status !== 'active') {
+       throw new Error(`Status akun Anda adalah '${profile.status}'. Anda harus dalam status 'active' untuk melakukan ekstraksi.`);
+    }
+
+    const { data: settings } = await supabase.from('admin_settings').select('extraction_interval_seconds').single();
+    const intervalSeconds = settings?.extraction_interval_seconds || 30;
 
     const now = new Date();
-    
-    // Daily Start
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0,0,0,0);
-    
-    // Weekly Start (assuming Monday as start of week)
-    const startOfWeek = new Date(now);
-    startOfWeek.setHours(0,0,0,0);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); 
-    startOfWeek.setDate(diff);
-
-    // Monthly Start
-    const startOfMonth = new Date(now);
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0,0,0,0);
-    
-    // Get all counts in one go
-    const [dailyRes, weeklyRes, monthlyRes] = await Promise.all([
-      supabase.from('api_usage_logs').select('id', { count: 'exact', head: true }).eq('user_id', user_id).gte('created_at', startOfDay.toISOString()),
-      supabase.from('api_usage_logs').select('id', { count: 'exact', head: true }).eq('user_id', user_id).gte('created_at', startOfWeek.toISOString()),
-      supabase.from('api_usage_logs').select('id', { count: 'exact', head: true }).eq('user_id', user_id).gte('created_at', startOfMonth.toISOString())
-    ]);
-
-    const errorMessage = "We purchased Google Maps credit for the development of this project, so these limits are strictly enforced. Please upgrade your plan or wait for the quota to reset.";
-
-    if (dailyRes.count !== null && dailyRes.count >= plan.daily_credit_quota) {
-      throw new Error(`Daily quota limit (${plan.daily_credit_quota}) has been reached. ${errorMessage}`);
-    }
-    if (weeklyRes.count !== null && (plan.weekly_credit_quota > 0) && weeklyRes.count >= plan.weekly_credit_quota) {
-      throw new Error(`Weekly quota limit (${plan.weekly_credit_quota}) has been reached. ${errorMessage}`);
-    }
-    if (monthlyRes.count !== null && monthlyRes.count >= plan.monthly_credit_quota) {
-      throw new Error(`Monthly quota limit (${plan.monthly_credit_quota}) has been reached. ${errorMessage}`);
+    if (profile.last_extraction_at) {
+       const lastExtraction = new Date(profile.last_extraction_at);
+       const diffSeconds = (now.getTime() - lastExtraction.getTime()) / 1000;
+       if (diffSeconds < intervalSeconds) {
+          throw new Error(`Harap tunggu ${Math.ceil(intervalSeconds - diffSeconds)} detik sebelum melakukan ekstraksi lagi.`);
+       }
     }
 
-    // Lanjutkan Pencarian Google Maps
+    // Determine initial credit requirements
     let lat, lng;
     const coordMatch = location.match(/^([-+]?\d{1,2}[.]\d+),\s*([-+]?\d{1,3}[.]\d+)$/);
+    let requiredInitialCredit = 1; // for nearbysearch
+    if (!coordMatch) requiredInitialCredit++; // for geocode
+
+    if (profile.credit < requiredInitialCredit) {
+       throw new Error(`Kredit tidak cukup. Dibutuhkan minimal ${requiredInitialCredit} kredit untuk memulai pencarian.`);
+    }
+
+    let usedCredits = 0;
+
+    // Geocode if needed
     if (coordMatch) {
       lat = parseFloat(coordMatch[1]);
       lng = parseFloat(coordMatch[2]);
     } else {
       const geocodeRes = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${apiKey}`);
       const geocodeData = await geocodeRes.json();
+      usedCredits++; // 1 API call
       
       if (!geocodeData.results || geocodeData.results.length === 0) {
+         // Deduct credit anyway since we called the API
+         await deductCredit(supabase, user_id, usedCredits);
          throw new Error(`Gagal menemukan area: ${location}`);
       }
       const loc = geocodeData.results[0].geometry.location;
@@ -102,11 +92,13 @@ Deno.serve(async (req) => {
       lng = loc.lng;
     }
 
+    // Nearby Search
     const radiusMeters = radius * 1000;
     const searchRes = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radiusMeters}&keyword=${encodeURIComponent(keyword)}&key=${apiKey}`);
     const searchData = await searchRes.json();
+    usedCredits++; // 1 API call
     
-    // Log Activity (sebelum mengembalikan data kosong)
+    // Log Activity
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
     await supabase.from('api_usage_logs').insert({
       user_id: user_id,
@@ -115,17 +107,25 @@ Deno.serve(async (req) => {
     });
 
     if (searchData.status === 'ZERO_RESULTS') {
+      await deductCredit(supabase, user_id, usedCredits);
       return new Response(JSON.stringify({ data: [] }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     if (searchData.status !== 'OK') {
+      await deductCredit(supabase, user_id, usedCredits);
       throw new Error(`Pencarian gagal: ${searchData.status}`);
     }
 
     const places = searchData.results;
-    const mappedPromises = places.map(async (place: any) => {
+    
+    // Determine how many place details we can fetch based on remaining credit
+    const availableCredit = profile.credit - usedCredits;
+    const detailsToFetch = Math.min(places.length, availableCredit);
+    usedCredits += detailsToFetch;
+
+    const mappedPromises = places.map(async (place: any, index: number) => {
       const distance = haversine(lat, lng, place.geometry.location.lat, place.geometry.location.lng);
       const basePlace = {
         id: place.place_id,
@@ -137,20 +137,25 @@ Deno.serve(async (req) => {
         phone: '-'
       };
       
-      try {
-        const detailsRes = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number&key=${apiKey}`);
-        const detailsData = await detailsRes.json();
-        if (detailsData.status === 'OK' && detailsData.result) {
-          basePlace.phone = detailsData.result.formatted_phone_number || '-';
+      if (index < detailsToFetch) {
+        try {
+          const detailsRes = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number&key=${apiKey}`);
+          const detailsData = await detailsRes.json();
+          if (detailsData.status === 'OK' && detailsData.result) {
+            basePlace.phone = detailsData.result.formatted_phone_number || '-';
+          }
+        } catch (e) {
         }
-      } catch (e) {
       }
       return basePlace;
     });
 
     const mappedData = await Promise.all(mappedPromises);
 
-    return new Response(JSON.stringify({ data: mappedData }), {
+    // Final deduction
+    await deductCredit(supabase, user_id, usedCredits);
+
+    return new Response(JSON.stringify({ data: mappedData, creditsUsed: usedCredits }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
@@ -171,4 +176,22 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
             Math.sin(dLon/2) * Math.sin(dLon/2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c;
+}
+
+async function deductCredit(supabase: any, userId: string, usedCredits: number) {
+  if (usedCredits > 0) {
+     // Because this is Edge Function, we might have concurrency. 
+     // For simple approach, we fetch and update or use an RPC.
+     // Supabase RPC is better for atomic decrement, but for now we can do a simple RPC if we create one,
+     // or just get current credit and decrement if traffic isn't super high.
+     // A better way is using an RPC `decrement_credit`. 
+     // Since we don't have it yet, we'll do:
+     const { data: current } = await supabase.from('profiles').select('credit').eq('id', userId).single();
+     if (current) {
+        await supabase.from('profiles').update({ 
+          credit: Math.max(0, current.credit - usedCredits),
+          last_extraction_at: new Date().toISOString()
+        }).eq('id', userId);
+     }
+  }
 }

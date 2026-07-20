@@ -6,8 +6,9 @@ interface Profile {
   id: string;
   email: string;
   role: string;
-  current_membership: string;
-  membership_expires_at: string | null;
+  status: string;
+  credit: number;
+  active_until: string | null;
   created_at: string;
 }
 
@@ -20,7 +21,8 @@ export default function ManageUsers() {
   // Edit State
   const [editingUser, setEditingUser] = useState<Profile | null>(null);
   const [editRole, setEditRole] = useState('');
-  const [editMembership, setEditMembership] = useState('');
+  const [editStatus, setEditStatus] = useState('');
+  const [editCredit, setEditCredit] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -58,7 +60,8 @@ export default function ManageUsers() {
   const handleEditClick = (user: Profile) => {
     setEditingUser(user);
     setEditRole(user.role);
-    setEditMembership(user.current_membership);
+    setEditStatus(user.status);
+    setEditCredit(user.credit);
   };
 
   const handleSaveEdit = async () => {
@@ -67,7 +70,8 @@ export default function ManageUsers() {
     
     const updates = {
       role: editRole,
-      current_membership: editMembership
+      status: editStatus,
+      credit: editCredit
     };
     
     const { error } = await supabase
@@ -86,7 +90,7 @@ export default function ManageUsers() {
   };
 
   const filteredUsers = users.filter(u => {
-    const matchesFilter = filter === 'all' || (u.current_membership === filter && u.role === 'user');
+    const matchesFilter = filter === 'all' || u.status === filter;
     const matchesSearch = u.email.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -114,11 +118,10 @@ export default function ManageUsers() {
             onChange={(e) => setFilter(e.target.value)}
             className="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
           >
-            <option value="all">All Levels</option>
-            <option value="free">Free Users</option>
-            <option value="starter">Starter</option>
-            <option value="pro">Pro</option>
-            <option value="business">Business</option>
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="grace">Grace</option>
+            <option value="off">Off</option>
           </select>
         </div>
       </header>
@@ -131,7 +134,8 @@ export default function ManageUsers() {
               <tr>
                 <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Email</th>
                 <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Role</th>
-                <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Membership</th>
+                <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Status</th>
+                <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Credit</th>
                 <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Valid Until</th>
                 <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase">Joined At</th>
                 <th className="px-6 py-4 font-inter text-xs font-semibold text-on-surface-variant tracking-wider uppercase text-right">Actions</th>
@@ -140,7 +144,7 @@ export default function ManageUsers() {
             <tbody className="divide-y divide-outline-variant">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-2 text-xs text-on-surface-variant font-medium">Loading user database...</p>
                   </td>
@@ -156,21 +160,19 @@ export default function ManageUsers() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    {user.role === 'admin' ? (
-                      <span className="font-inter text-xs text-outline font-semibold">N/A</span>
-                    ) : (
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        user.current_membership === 'business' ? 'bg-slate-800 text-slate-100' :
-                        user.current_membership === 'pro' ? 'bg-yellow-100 text-yellow-800' :
-                        user.current_membership === 'starter' ? 'bg-slate-200 text-slate-800' :
-                        'bg-blue-50 text-blue-600'
-                      }`}>
-                        {user.current_membership}
-                      </span>
-                    )}
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      user.status === 'active' ? 'bg-green-100 text-green-700' :
+                      user.status === 'grace' ? 'bg-orange-100 text-orange-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 font-inter text-sm font-bold text-primary">
+                    {user.credit}
                   </td>
                   <td className="px-6 py-4 font-inter text-xs text-on-surface-variant">
-                    {user.role === 'admin' ? '-' : (user.membership_expires_at ? new Date(user.membership_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never')}
+                    {user.active_until ? new Date(user.active_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Never'}
                   </td>
                   <td className="px-6 py-4 font-inter text-xs text-on-surface-variant">
                     {new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -199,7 +201,7 @@ export default function ManageUsers() {
               ))}
               {!isLoading && filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="bg-surface-container w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 text-on-surface-variant">
                       <Search size={24} />
                     </div>
@@ -251,21 +253,28 @@ export default function ManageUsers() {
                   )}
                 </div>
                 
-                {editRole !== 'admin' && (
-                  <div>
-                    <label className="font-inter text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Membership Level</label>
-                    <select 
-                      value={editMembership}
-                      onChange={(e) => setEditMembership(e.target.value)}
-                      className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    >
-                      <option value="free">Free</option>
-                      <option value="starter">Starter</option>
-                      <option value="pro">Pro</option>
-                      <option value="business">Business</option>
-                    </select>
-                  </div>
-                )}
+                <div>
+                  <label className="font-inter text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Status</label>
+                  <select 
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value)}
+                    className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  >
+                    <option value="active">Active</option>
+                    <option value="grace">Grace</option>
+                    <option value="off">Off</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="font-inter text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Credit</label>
+                  <input
+                    type="number" 
+                    value={editCredit}
+                    onChange={(e) => setEditCredit(Number(e.target.value))}
+                    className="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
               </div>
             </div>
             
