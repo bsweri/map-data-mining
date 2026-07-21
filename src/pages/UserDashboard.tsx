@@ -336,7 +336,7 @@ export default function UserDashboard() {
             >
               <Menu size={20} />
             </button>
-            <h2 className="font-hanken text-lg font-bold text-on-surface">User Dashboard</h2>
+            <h2 className="font-hanken text-lg font-bold text-on-surface">Dashboard</h2>
           </div>
           <div className="flex items-center gap-3 md:gap-4">
             <button 
