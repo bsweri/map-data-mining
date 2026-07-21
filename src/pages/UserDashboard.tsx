@@ -73,6 +73,7 @@ export default function UserDashboard() {
   } | null>(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [isBuyingActivePeriod, setIsBuyingActivePeriod] = useState(false);
+  const [showExtendModal, setShowExtendModal] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -368,7 +369,7 @@ export default function UserDashboard() {
 
             {/* Extend Button (Explicit) */}
             <button 
-              onClick={handleBuyActivePeriod}
+              onClick={() => setShowExtendModal(true)}
               disabled={isBuyingActivePeriod || !adminSettings || credit < adminSettings.active_period_price_credit}
               className="hidden sm:flex items-center gap-1.5 bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-full border border-primary/30 hover:border-primary/60 transition-all disabled:opacity-50 active:scale-95"
               title={`Biaya: ${adminSettings?.active_period_price_credit || '-'} Credits`}
@@ -706,6 +707,51 @@ export default function UserDashboard() {
             </p>
           </div>
         </footer>
+        
+        {/* Extend Period Confirmation Modal */}
+        {showExtendModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-surface rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-outline-variant">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <Zap size={24} className="text-primary" />
+              </div>
+              <h3 className="text-xl font-hanken font-bold text-on-surface mb-2">Extend Active Period</h3>
+              <p className="text-sm font-inter text-on-surface-variant mb-6">
+                Are you sure you want to extend your active period?
+              </p>
+              
+              <div className="space-y-3 mb-6 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-on-surface-variant font-medium">Cost:</span>
+                  <span className="text-sm font-bold text-red-500 dark:text-red-400">-{adminSettings?.active_period_price_credit} Credits</span>
+                </div>
+                <div className="h-px bg-outline-variant w-full"></div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-on-surface-variant font-medium">Additional Days:</span>
+                  <span className="text-sm font-bold text-green-600 dark:text-green-400">+{adminSettings?.active_period_days_addition} Days</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowExtendModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-on-surface hover:bg-surface-container transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowExtendModal(false);
+                    handleBuyActivePeriod();
+                  }}
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold bg-primary text-on-primary hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 shadow-sm"
+                >
+                  Confirm Extend
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
