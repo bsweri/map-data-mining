@@ -5,12 +5,15 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Pricing from './pages/Pricing';
 import UserDashboard from './pages/UserDashboard';
+import Profile from './pages/Profile';
+import ContactUs from './pages/ContactUs';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import DashboardOverview from './pages/admin/DashboardOverview';
 import ManageUsers from './pages/admin/ManageUsers';
 import PricingSettings from './pages/admin/PricingSettings';
 import GlobalSettings from './pages/admin/GlobalSettings';
+import Inbox from './pages/admin/Inbox';
 
 export default function App() {
   return (
@@ -19,6 +22,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/contact" element={<ContactUs />} />
       <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
       
       {/* Rute Administrator (Hanya bisa diakses jika role == admin) */}
@@ -26,6 +31,7 @@ export default function App() {
         <Route index element={<DashboardOverview />} />
         <Route path="users" element={<ManageUsers />} />
         <Route path="pricing" element={<PricingSettings />} />
+        <Route path="messages" element={<Inbox />} />
         <Route path="settings" element={<GlobalSettings />} />
       </Route>
     </Routes>

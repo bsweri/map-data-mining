@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPinned, ChevronDown, Menu, X, Map, FileText, Search, Database, Users, Mail } from 'lucide-react';
+import { MapPinned, ChevronDown, Menu, X, Map, FileText, Search, Database, Mail, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -43,16 +43,16 @@ export default function Header() {
                         <Map size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
                         <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Google Maps API</span>
                       </a>
-                      <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
-                        <FileText size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                        <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Yellow Pages Scraper</span>
+                      <a className="flex items-center gap-3 px-4 py-3 opacity-50 cursor-not-allowed rounded-lg" href="#" onClick={(e) => e.preventDefault()}>
+                        <FileText size={18} className="text-primary opacity-60" />
+                        <span className="text-sm font-medium text-on-surface-variant">Yellow Pages Scraper</span>
                       </a>
-                      <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
-                        <Search size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                        <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Google Search Scraper</span>
+                      <a className="flex items-center gap-3 px-4 py-3 opacity-50 cursor-not-allowed rounded-lg" href="#" onClick={(e) => e.preventDefault()}>
+                        <Search size={18} className="text-primary opacity-60" />
+                        <span className="text-sm font-medium text-on-surface-variant">Google Search Scraper</span>
                       </a>
                       <div className="border-t border-outline-variant my-1"></div>
-                      <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
+                      <a className="flex items-center gap-3 px-4 py-3 opacity-50 cursor-not-allowed rounded-lg" href="#" onClick={(e) => e.preventDefault()}>
                         <Database size={18} className="text-primary" />
                         <span className="text-sm font-semibold text-primary">Others Data Mining</span>
                       </a>
@@ -79,14 +79,14 @@ export default function Header() {
 
                 {isAboutOpen && (
                   <div className="absolute top-full left-0 w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all text-sm font-medium text-on-surface-variant hover:text-primary group" href="#">
-                      <Users size={16} className="text-on-surface-variant group-hover:text-primary" />
-                      Community
-                    </a>
-                    <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all text-sm font-medium text-on-surface-variant hover:text-primary group" href="#">
+                    <Link to="/profile" className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all text-sm font-medium text-on-surface-variant hover:text-primary group">
+                      <User size={16} className="text-on-surface-variant group-hover:text-primary" />
+                      Profile
+                    </Link>
+                    <Link to="/contact" className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all text-sm font-medium text-on-surface-variant hover:text-primary group">
                       <Mail size={16} className="text-on-surface-variant group-hover:text-primary" />
                       Contact Us
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -136,9 +136,9 @@ export default function Header() {
                   {mobileServicesOpen && (
                     <div className="flex flex-col gap-1 bg-surface-container-low px-4 py-2 rounded-lg mt-2 overflow-hidden">
                       <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Google Maps API</a>
-                      <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Yellow Pages Scraper</a>
-                      <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Google Search Scraper</a>
-                      <a className="py-3 text-base text-primary font-semibold" href="#" onClick={() => setIsMobileMenuOpen(false)}>Others Data Mining</a>
+                      <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30 opacity-50 cursor-not-allowed" href="#" onClick={(e) => e.preventDefault()}>Yellow Pages Scraper</a>
+                      <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30 opacity-50 cursor-not-allowed" href="#" onClick={(e) => e.preventDefault()}>Google Search Scraper</a>
+                      <a className="py-3 text-base text-primary font-semibold opacity-50 cursor-not-allowed" href="#" onClick={(e) => e.preventDefault()}>Others Data Mining</a>
                     </div>
                   )}
                 </div>
@@ -160,8 +160,8 @@ export default function Header() {
                 </button>
                 {mobileAboutOpen && (
                   <div className="flex flex-col gap-1 bg-surface-container-low px-4 py-2 rounded-lg mt-2 overflow-hidden">
-                    <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Community</a>
-                    <a className="py-3 text-base text-on-surface-variant" href="#" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</a>
+                    <Link to="/profile" className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" onClick={() => setIsMobileMenuOpen(false)}>Profile</Link>
+                    <Link to="/contact" className="py-3 text-base text-on-surface-variant" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</Link>
                   </div>
                 )}
               </div>
