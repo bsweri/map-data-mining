@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import type { MapPlace } from '../types';
@@ -309,14 +309,14 @@ export default function UserDashboard() {
         <nav className="flex-grow">
           <div className="px-2 space-y-1">
 
-            <a className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" href="/dashboard">
+            <Link className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" to="/dashboard">
               <Compass size={18} />
               Dashboard
-            </a>
-            <a className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" href="/pricing">
+            </Link>
+            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/pricing">
               <CreditCard size={18} />
               Buy Credits
-            </a>
+            </Link>
 
           </div>
         </nav>
@@ -363,10 +363,13 @@ export default function UserDashboard() {
             <div className="h-6 w-px bg-outline-variant hidden sm:block"></div>
             
             {/* Credit Pill */}
-            <a href="/pricing" className="hidden sm:flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant hover:border-primary transition-colors cursor-pointer group">
+            <Link 
+              to="/pricing" 
+              className="hidden sm:flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant hover:border-primary transition-colors cursor-pointer group"
+            >
               <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-primary transition-colors">Credit</span>
               <span className="text-sm font-extrabold text-primary">{credit.toLocaleString('id-ID')}</span>
-            </a>
+            </Link>
 
             {/* Active Days Pill (Display Only) */}
             <div className="hidden sm:flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant group cursor-default">
