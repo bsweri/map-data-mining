@@ -312,69 +312,7 @@ export default function UserDashboard() {
           </div>
         </nav>
 
-        {/* Profile/Quota Section */}
-        <div className="px-4 mt-auto mb-6">
-          <div className="bg-gradient-to-br from-surface to-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant relative overflow-hidden">
-            {/* Background Accent */}
-            <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
-            
-            <div className="flex items-center gap-3 mb-6 relative z-10">
-              <div className="w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary text-on-primary font-bold shadow-sm text-lg">
-                {profile?.email ? profile.email.substring(0, 2).toUpperCase() : 'US'}
-              </div>
-              <div className="flex flex-col overflow-hidden">
-                <span className="font-inter text-sm font-bold text-on-surface truncate" title={profile?.email}>
-                  {profile?.email ? profile.email.split('@')[0] : 'User'}
-                </span>
-                <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
-                  status === 'active' ? 'text-green-600 dark:text-green-400' : 
-                  status === 'grace' ? 'text-amber-600 dark:text-amber-400' : 
-                  'text-red-600 dark:text-red-400'
-                }`}>
-                  {status} Account
-                </span>
-              </div>
-            </div>
-            
-            <div className="space-y-5 relative z-10">
-              <div className="bg-surface-container-highest/30 rounded-xl p-3 border border-outline-variant/50">
-                <div className="flex justify-between items-baseline">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Credit Balance</span>
-                  <span className="text-primary text-xl font-extrabold">{credit.toLocaleString('id-ID')}</span>
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-end">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Active Period</span>
-                  <span className="text-xs font-bold text-on-surface">{remainingDays} Days Left</span>
-                </div>
-                <div className="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-1000 ${remainingDays > 7 ? 'bg-primary' : remainingDays > 0 ? 'bg-amber-500' : 'bg-red-500'}`} 
-                    style={{ width: `${Math.min(100, (remainingDays / (adminSettings?.max_active_days || 30)) * 100)}%` }}
-                  ></div>
-                </div>
-                <div className="text-[9px] text-on-surface-variant text-right font-medium">
-                  Until: {activeUntil ? new Date(activeUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
-                </div>
-              </div>
-              
-              <button 
-                onClick={handleBuyActivePeriod}
-                disabled={isBuyingActivePeriod || !adminSettings || credit < adminSettings.active_period_price_credit}
-                className="w-full mt-2 py-2.5 bg-primary text-on-primary rounded-xl font-inter text-xs font-bold shadow-sm hover:shadow hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isBuyingActivePeriod ? (
-                  <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-                ) : (
-                  <Zap size={14} />
-                )}
-                {isBuyingActivePeriod ? 'Processing...' : `Extend Period (${adminSettings?.active_period_price_credit || '-'} Cr)`}
-              </button>
-            </div>
-          </div>
-        </div>
 
         <div className="border-t border-outline-variant pt-4 px-2 space-y-1">
           <button 
@@ -400,22 +338,58 @@ export default function UserDashboard() {
             </button>
             <h2 className="font-hanken text-lg font-bold text-on-surface">User Dashboard</h2>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             <button 
               onClick={() => setUnreadNotificationsCount(0)}
-              className="p-2 text-on-surface-variant hover:text-primary transition-colors relative"
+              className="p-2 text-on-surface-variant hover:text-primary transition-colors relative hidden sm:block"
             >
               <Bell size={18} />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute top-1 right-1 w-4.5 h-4.5 bg-red-500 text-[10px] font-bold text-white rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-[9px] font-bold text-white rounded-full flex items-center justify-center animate-pulse">
                   {unreadNotificationsCount}
                 </span>
               )}
             </button>
-            <div className="h-8 w-px bg-outline-variant"></div>
-            <div className="flex items-center gap-2">
-              <MapPin size={18} className="text-primary" />
-              <span className="font-inter text-sm font-medium text-on-surface-variant">Jakarta, ID</span>
+            
+            <div className="h-6 w-px bg-outline-variant hidden sm:block"></div>
+            
+            {/* Credit Pill */}
+            <a href="/pricing" className="hidden sm:flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant hover:border-primary transition-colors cursor-pointer group">
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-primary transition-colors">Credit</span>
+              <span className="text-sm font-extrabold text-primary">{credit.toLocaleString('id-ID')}</span>
+            </a>
+
+            {/* Active Days Pill */}
+            <button 
+              onClick={handleBuyActivePeriod}
+              disabled={isBuyingActivePeriod || !adminSettings || credit < adminSettings.active_period_price_credit}
+              className="hidden sm:flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant hover:border-primary transition-colors disabled:opacity-50 group"
+              title={`Extend Active Period (${adminSettings?.active_period_price_credit || '-'} Cr)`}
+            >
+              <div className={`w-2 h-2 rounded-full ${remainingDays > 7 ? 'bg-green-500' : remainingDays > 0 ? 'bg-amber-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}></div>
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-primary transition-colors">Active</span>
+              {isBuyingActivePeriod ? (
+                <span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                <span className="text-sm font-extrabold text-on-surface">{remainingDays}d</span>
+              )}
+            </button>
+
+            <div className="h-6 w-px bg-outline-variant mx-1"></div>
+
+            {/* User Avatar */}
+            <div className="flex items-center gap-2 cursor-pointer group">
+              <div className="flex flex-col text-right hidden md:flex">
+                <span className="text-xs font-bold text-on-surface leading-tight group-hover:text-primary transition-colors">
+                  {profile?.email ? profile.email.split('@')[0] : 'User'}
+                </span>
+                <span className={`text-[9px] font-bold uppercase tracking-wider ${status === 'active' ? 'text-green-600 dark:text-green-400' : status === 'grace' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {status}
+                </span>
+              </div>
+              <div className="w-9 h-9 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary text-on-primary font-bold shadow-sm text-sm group-hover:brightness-110 transition-all">
+                {profile?.email ? profile.email.substring(0, 2).toUpperCase() : 'US'}
+              </div>
             </div>
           </div>
         </header>
