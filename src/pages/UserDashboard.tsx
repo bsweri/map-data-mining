@@ -5,10 +5,8 @@ import { supabase } from '../lib/supabase';
 import type { MapPlace } from '../types';
 import * as XLSX from 'xlsx';
 import { 
-  LayoutDashboard, 
   Compass, 
   CreditCard, 
-  HelpCircle, 
   LogOut, 
   Bell, 
   MapPin, 
