@@ -299,10 +299,6 @@ export default function UserDashboard() {
         
         <nav className="flex-grow">
           <div className="px-2 space-y-1">
-            <a className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" href="/dashboard">
-              <LayoutDashboard size={18} />
-              Overview
-            </a>
 
             <a className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" href="/dashboard">
               <Compass size={18} />
