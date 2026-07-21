@@ -22,7 +22,9 @@ import {
   ChevronDown,
   ChevronUp,
   Filter,
-  AlertTriangle
+  AlertTriangle,
+  CheckCircle2,
+  Info
 } from 'lucide-react';
 
 export default function UserDashboard() {
@@ -74,6 +76,12 @@ export default function UserDashboard() {
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [isBuyingActivePeriod, setIsBuyingActivePeriod] = useState(false);
   const [showExtendModal, setShowExtendModal] = useState(false);
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'info'} | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -188,7 +196,7 @@ export default function UserDashboard() {
 
   const handleBuyActivePeriod = async () => {
      if (credit < (adminSettings?.active_period_price_credit || 0)) {
-        alert('Kredit tidak cukup');
+        showToast('Kredit tidak cukup', 'error');
         return;
      }
      setIsBuyingActivePeriod(true);
@@ -199,12 +207,12 @@ export default function UserDashboard() {
            setCredit(data.new_credit);
            setActiveUntil(data.new_active_until);
            setStatus('active');
-           alert('Masa aktif berhasil diperpanjang!');
+           showToast('Masa aktif berhasil diperpanjang!', 'success');
         } else {
-           alert(data.error);
+           showToast(data.error, 'error');
         }
      } catch (err: any) {
-        alert(err.message || 'Terjadi kesalahan sistem.');
+        showToast(err.message || 'Terjadi kesalahan sistem.', 'error');
      } finally {
         setIsBuyingActivePeriod(false);
      }
@@ -750,6 +758,20 @@ export default function UserDashboard() {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Toast Notification */}
+        {toast && (
+          <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl border animate-fade-in-up transition-all ${
+            toast.type === 'success' ? 'bg-[#f0fdf4] border-green-200 text-green-800' :
+            toast.type === 'error' ? 'bg-[#fef2f2] border-red-200 text-red-800' :
+            'bg-surface border-outline-variant text-on-surface'
+          }`}>
+            {toast.type === 'success' && <CheckCircle2 size={22} className="text-green-600" />}
+            {toast.type === 'error' && <AlertTriangle size={22} className="text-red-600" />}
+            {toast.type === 'info' && <Info size={22} className="text-primary" />}
+            <span className="font-inter text-sm font-bold">{toast.message}</span>
           </div>
         )}
       </main>
