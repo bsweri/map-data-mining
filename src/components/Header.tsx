@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { MapPinned, ChevronDown, Menu, X, Map, FileText, Search, Database, Users, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Header() {
+  const { user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -24,41 +26,44 @@ export default function Header() {
             {/* Desktop Navigation */}
             <div className="hidden lg:flex gap-8 h-full">
               {/* Services Dropdown */}
-              <div 
-                className="relative h-full flex items-center"
-                onMouseEnter={() => setIsServicesOpen(true)}
-                onMouseLeave={() => setIsServicesOpen(false)}
-              >
-                <button className="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium py-5">
-                  SERVICES
-                  <ChevronDown size={16} className={`transition-transform duration-200 ${isServicesOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {isServicesOpen && (
-                  <div className="absolute top-full left-0 w-72 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
-                      <Map size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                      <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Google Maps API</span>
-                    </a>
-                    <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
-                      <FileText size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                      <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Yellow Pages Scraper</span>
-                    </a>
-                    <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
-                      <Search size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
-                      <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Google Search Scraper</span>
-                    </a>
-                    <div className="border-t border-outline-variant my-1"></div>
-                    <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
-                      <Database size={18} className="text-primary" />
-                      <span className="text-sm font-semibold text-primary">Others Data Mining</span>
-                    </a>
-                  </div>
-                )}
-              </div>
+              {!user && (
+                <div 
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => setIsServicesOpen(true)}
+                  onMouseLeave={() => setIsServicesOpen(false)}
+                >
+                  <button className="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium py-5">
+                    SERVICES
+                    <ChevronDown size={16} className={`transition-transform duration-200 ${isServicesOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {isServicesOpen && (
+                    <div className="absolute top-full left-0 w-72 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
+                        <Map size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Google Maps API</span>
+                      </a>
+                      <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
+                        <FileText size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Yellow Pages Scraper</span>
+                      </a>
+                      <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
+                        <Search size={18} className="text-primary opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-sm font-medium text-on-surface-variant group-hover:text-primary">Google Search Scraper</span>
+                      </a>
+                      <div className="border-t border-outline-variant my-1"></div>
+                      <a className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 rounded-lg transition-all group" href="#">
+                        <Database size={18} className="text-primary" />
+                        <span className="text-sm font-semibold text-primary">Others Data Mining</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              <a className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" href="#">AFFILIATE</a>
-              <Link className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" to="/pricing">PRICING</Link>
+              {user && (
+                <a className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" href="#">AFFILIATE</a>
+              )}
               <a className="flex items-center text-on-surface-variant hover:text-primary transition-colors font-inter text-sm font-medium h-full" href="#">FAQ</a>
 
               {/* About Us Dropdown */}
@@ -119,26 +124,29 @@ export default function Header() {
             
             <div className="flex flex-col gap-2">
               {/* Services Accordion */}
-              <div>
-                <button 
-                  className="w-full flex items-center justify-between py-4 text-xl text-on-surface border-b border-outline-variant text-left outline-none"
-                  onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
-                >
-                  SERVICES
-                  <ChevronDown size={20} className={`transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {mobileServicesOpen && (
-                  <div className="flex flex-col gap-1 bg-surface-container-low px-4 py-2 rounded-lg mt-2 overflow-hidden">
-                    <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Google Maps API</a>
-                    <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Yellow Pages Scraper</a>
-                    <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Google Search Scraper</a>
-                    <a className="py-3 text-base text-primary font-semibold" href="#" onClick={() => setIsMobileMenuOpen(false)}>Others Data Mining</a>
-                  </div>
-                )}
-              </div>
+              {!user && (
+                <div>
+                  <button 
+                    className="w-full flex items-center justify-between py-4 text-xl text-on-surface border-b border-outline-variant text-left outline-none"
+                    onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                  >
+                    SERVICES
+                    <ChevronDown size={20} className={`transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {mobileServicesOpen && (
+                    <div className="flex flex-col gap-1 bg-surface-container-low px-4 py-2 rounded-lg mt-2 overflow-hidden">
+                      <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Google Maps API</a>
+                      <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Yellow Pages Scraper</a>
+                      <a className="py-3 text-base text-on-surface-variant border-b border-outline-variant/30" href="#" onClick={() => setIsMobileMenuOpen(false)}>Google Search Scraper</a>
+                      <a className="py-3 text-base text-primary font-semibold" href="#" onClick={() => setIsMobileMenuOpen(false)}>Others Data Mining</a>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              <a className="py-4 text-xl text-on-surface border-b border-outline-variant" href="#" onClick={() => setIsMobileMenuOpen(false)}>AFFILIATE</a>
-              <Link className="py-4 text-xl text-on-surface border-b border-outline-variant" to="/pricing" onClick={() => setIsMobileMenuOpen(false)}>PRICING</Link>
+              {user && (
+                <a className="py-4 text-xl text-on-surface border-b border-outline-variant" href="#" onClick={() => setIsMobileMenuOpen(false)}>AFFILIATE</a>
+              )}
               <a className="py-4 text-xl text-on-surface border-b border-outline-variant" href="#" onClick={() => setIsMobileMenuOpen(false)}>FAQ</a>
 
               {/* About Us Accordion */}
