@@ -302,7 +302,7 @@ export default function UserDashboard() {
 
             <a className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" href="/dashboard">
               <Compass size={18} />
-              Extraction
+              Dashboard
             </a>
             <a className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" href="/pricing">
               <CreditCard size={18} />
