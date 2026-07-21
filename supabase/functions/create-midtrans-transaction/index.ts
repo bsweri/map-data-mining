@@ -1,12 +1,12 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://bsweri.github.io',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -14,13 +14,40 @@ serve(async (req) => {
   try {
     const payload = await req.json();
     
-    if (typeof payload.amount !== 'number' || payload.amount < 10000 || payload.amount > 100000000) {
+    if (!payload.package_id) {
       return new Response(
-        JSON.stringify({ error: 'Nominal donasi tidak valid (Minimal Rp 10.000)' }),
+        JSON.stringify({ error: 'package_id is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    const amount = payload.amount;
+
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Missing Authorization header');
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: { user }, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !user) {
+      throw new Error('Unauthorized');
+    }
+
+    const { data: pkg, error: pkgErr } = await supabase
+      .from('credit_packages')
+      .select('*')
+      .eq('id', payload.package_id)
+      .single();
+
+    if (pkgErr || !pkg) {
+      throw new Error('Package not found');
+    }
+
+    const amount = pkg.price_idr;
 
     const serverKey = Deno.env.get('MIDTRANS_SERVER_KEY');
     if (!serverKey) {
@@ -28,8 +55,24 @@ serve(async (req) => {
     }
 
     const authString = btoa(`${serverKey}:`);
+    const orderId = `PKG-${crypto.randomUUID()}`;
 
-    const orderId = `DONATION-${crypto.randomUUID()}`;
+    const { error: insertErr } = await supabase
+      .from('transactions')
+      .insert({
+        id: orderId,
+        user_id: user.id,
+        gateway: 'midtrans',
+        amount: amount,
+        currency: 'IDR',
+        package_id: pkg.id,
+        status: 'pending'
+      });
+
+    if (insertErr) {
+      console.error(insertErr);
+      throw new Error('Failed to create transaction record');
+    }
 
     const midtransPayload = {
       transaction_details: {
@@ -38,15 +81,15 @@ serve(async (req) => {
       },
       item_details: [
         {
-          id: 'DONATION',
+          id: pkg.id,
           price: amount,
           quantity: 1,
-          name: 'Donasi Smart Marketing Tools',
+          name: `Paket ${pkg.name}`,
         }
       ],
       customer_details: {
-        first_name: 'Donatur',
-        last_name: 'Dermawan'
+        first_name: user.email?.split('@')[0] || 'User',
+        email: user.email
       }
     };
 
@@ -63,7 +106,7 @@ serve(async (req) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error_messages ? data.error_messages.join(', ') : 'Failed to create transaction');
+      throw new Error(data.error_messages ? data.error_messages.join(', ') : 'Failed to create midtrans transaction');
     }
 
     return new Response(
@@ -72,7 +115,7 @@ serve(async (req) => {
     );
 
   } catch (error: any) {
-    console.error('Midtrans API error:', error);
+    console.error('API error:', error);
     return new Response(
       JSON.stringify({ error: error.message || 'Internal Server Error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -68,25 +68,13 @@ Deno.serve(async (req) => {
             .update({ status: 'completed' })
             .eq('id', orderId);
 
-          if (trx.plan_id) {
-            const { data: plan } = await supabase
-              .from('membership_plans')
-              .select('*')
-              .eq('id', trx.plan_id)
-              .single();
-
-            if (plan) {
-              const months = trx.period_months || 1;
-              const validUntil = new Date();
-              validUntil.setMonth(validUntil.getMonth() + months);
-
-              await supabase
-                .from('profiles')
-                .update({
-                  current_membership: plan.level,
-                  membership_valid_until: validUntil.toISOString()
-                })
-                .eq('id', trx.user_id);
+          if (trx.package_id) {
+            const { error: rpcErr } = await supabase.rpc('fulfill_package_purchase', {
+              p_user_id: trx.user_id,
+              p_package_id: trx.package_id
+            });
+            if (rpcErr) {
+              console.error('Failed to fulfill package:', rpcErr);
             }
           }
         }
