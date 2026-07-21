@@ -69,6 +69,7 @@ export default function UserDashboard() {
     ads_min_credit: number;
     active_period_price_credit: number;
     active_period_days_addition: number;
+    max_active_days: number;
   } | null>(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [isBuyingActivePeriod, setIsBuyingActivePeriod] = useState(false);
