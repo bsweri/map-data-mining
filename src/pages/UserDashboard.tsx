@@ -196,7 +196,7 @@ export default function UserDashboard() {
 
   const handleBuyActivePeriod = async () => {
      if (credit < (adminSettings?.active_period_price_credit || 0)) {
-        showToast('Kredit tidak cukup', 'error');
+        showToast('Insufficient credits.', 'error');
         return;
      }
      setIsBuyingActivePeriod(true);
@@ -207,12 +207,12 @@ export default function UserDashboard() {
            setCredit(data.new_credit);
            setActiveUntil(data.new_active_until);
            setStatus('active');
-           showToast('Masa aktif berhasil diperpanjang!', 'success');
+           showToast('Active period successfully extended!', 'success');
         } else {
            showToast(data.error, 'error');
         }
      } catch (err: any) {
-        showToast(err.message || 'Terjadi kesalahan sistem.', 'error');
+        showToast(err.message || 'A system error occurred.', 'error');
      } finally {
         setIsBuyingActivePeriod(false);
      }
