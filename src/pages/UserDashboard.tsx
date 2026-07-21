@@ -267,6 +267,7 @@ export default function UserDashboard() {
     window.location.href = import.meta.env.BASE_URL || '/';
   };
 
+  const remainingDays = activeUntil ? Math.max(0, Math.ceil((new Date(activeUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0;
   const showAds = adminSettings && credit < adminSettings.ads_min_credit && status === 'grace';
 
   return (
@@ -312,39 +313,57 @@ export default function UserDashboard() {
 
         {/* Profile/Quota Section */}
         <div className="px-4 mt-auto mb-6">
-          <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-outline-variant">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full border border-primary flex items-center justify-center bg-primary-fixed text-on-primary-fixed font-bold">
+          <div className="bg-gradient-to-br from-surface to-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant relative overflow-hidden">
+            {/* Background Accent */}
+            <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
+            
+            <div className="flex items-center gap-3 mb-6 relative z-10">
+              <div className="w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary text-on-primary font-bold shadow-sm text-lg">
                 {profile?.email ? profile.email.substring(0, 2).toUpperCase() : 'US'}
               </div>
               <div className="flex flex-col overflow-hidden">
                 <span className="font-inter text-sm font-bold text-on-surface truncate" title={profile?.email}>
                   {profile?.email ? profile.email.split('@')[0] : 'User'}
                 </span>
-                <span className="text-xs text-on-surface-variant capitalize">Role: {profile?.role || 'Member'}</span>
+                <span className="text-[10px] text-primary font-bold uppercase tracking-wider mt-0.5">{status} Account</span>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                <span>Credit Balance</span>
-                <span className="text-primary text-sm font-bold">{credit}</span>
+            <div className="space-y-5 relative z-10">
+              <div className="bg-surface-container-highest/30 rounded-xl p-3 border border-outline-variant/50">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Credit Balance</span>
+                  <span className="text-primary text-xl font-extrabold">{credit.toLocaleString('id-ID')}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                <span>Status</span>
-                <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${status === 'active' ? 'bg-green-100 text-green-700' : status === 'grace' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>{status.toUpperCase()}</span>
-              </div>
-              <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                <span>Active Until</span>
-                <span>{activeUntil ? new Date(activeUntil).toLocaleDateString() : 'N/A'}</span>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Active Period</span>
+                  <span className="text-xs font-bold text-on-surface">{remainingDays} Days Left</span>
+                </div>
+                <div className="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ${remainingDays > 7 ? 'bg-primary' : remainingDays > 0 ? 'bg-amber-500' : 'bg-red-500'}`} 
+                    style={{ width: `${Math.min(100, (remainingDays / (adminSettings?.max_active_days || 30)) * 100)}%` }}
+                  ></div>
+                </div>
+                <div className="text-[9px] text-on-surface-variant text-right font-medium">
+                  Until: {activeUntil ? new Date(activeUntil).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
+                </div>
               </div>
               
               <button 
                 onClick={handleBuyActivePeriod}
                 disabled={isBuyingActivePeriod || !adminSettings || credit < adminSettings.active_period_price_credit}
-                className="w-full mt-2 py-2 bg-primary text-on-primary rounded-lg font-inter text-xs font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-2 py-2.5 bg-primary text-on-primary rounded-xl font-inter text-xs font-bold shadow-sm hover:shadow hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isBuyingActivePeriod ? 'Processing...' : `Extend Active Period (${adminSettings?.active_period_price_credit || '-'} Cr)`}
+                {isBuyingActivePeriod ? (
+                  <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <Zap size={14} />
+                )}
+                {isBuyingActivePeriod ? 'Processing...' : `Extend Period (${adminSettings?.active_period_price_credit || '-'} Cr)`}
               </button>
             </div>
           </div>
