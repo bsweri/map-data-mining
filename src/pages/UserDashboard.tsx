@@ -326,7 +326,13 @@ export default function UserDashboard() {
                 <span className="font-inter text-sm font-bold text-on-surface truncate" title={profile?.email}>
                   {profile?.email ? profile.email.split('@')[0] : 'User'}
                 </span>
-                <span className="text-[10px] text-primary font-bold uppercase tracking-wider mt-0.5">{status} Account</span>
+                <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
+                  status === 'active' ? 'text-green-600 dark:text-green-400' : 
+                  status === 'grace' ? 'text-amber-600 dark:text-amber-400' : 
+                  'text-red-600 dark:text-red-400'
+                }`}>
+                  {status} Account
+                </span>
               </div>
             </div>
             
