@@ -359,20 +359,26 @@ export default function UserDashboard() {
               <span className="text-sm font-extrabold text-primary">{credit.toLocaleString('id-ID')}</span>
             </a>
 
-            {/* Active Days Pill */}
+            {/* Active Days Pill (Display Only) */}
+            <div className="hidden sm:flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant group cursor-default">
+              <div className={`w-2 h-2 rounded-full ${remainingDays > 7 ? 'bg-green-500' : remainingDays > 0 ? 'bg-amber-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}></div>
+              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-on-surface transition-colors">Active</span>
+              <span className="text-sm font-extrabold text-on-surface">{remainingDays}d</span>
+            </div>
+
+            {/* Extend Button (Explicit) */}
             <button 
               onClick={handleBuyActivePeriod}
               disabled={isBuyingActivePeriod || !adminSettings || credit < adminSettings.active_period_price_credit}
-              className="hidden sm:flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded-full border border-outline-variant hover:border-primary transition-colors disabled:opacity-50 group"
-              title={`Extend Active Period (${adminSettings?.active_period_price_credit || '-'} Cr)`}
+              className="hidden sm:flex items-center gap-1.5 bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-full border border-primary/30 hover:border-primary/60 transition-all disabled:opacity-50 active:scale-95"
+              title={`Biaya: ${adminSettings?.active_period_price_credit || '-'} Credits`}
             >
-              <div className={`w-2 h-2 rounded-full ${remainingDays > 7 ? 'bg-green-500' : remainingDays > 0 ? 'bg-amber-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}></div>
-              <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider group-hover:text-primary transition-colors">Active</span>
               {isBuyingActivePeriod ? (
                 <span className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
               ) : (
-                <span className="text-sm font-extrabold text-on-surface">{remainingDays}d</span>
+                <Zap size={14} />
               )}
+              <span className="text-[11px] font-bold uppercase tracking-wide">Extend</span>
             </button>
 
             <div className="h-6 w-px bg-outline-variant mx-1"></div>
