@@ -45,5 +45,19 @@
   },
   "export": {
     "button": "Ekspor ke Excel"
+  },
+  "pricing": {
+    "page_title": "Pilih Paket Terbaik untuk Bisnis Anda",
+    "page_desc": "GeoExtract menyediakan solusi geospatial data mining terbaik untuk menunjang riset pasar dan ekspansi bisnis Anda.",
+    "title": "Upgrade Paket Kredit Anda",
+    "desc": "Dapatkan tambahan kredit dan masa aktif untuk akses penuh ke pencarian Google Maps.",
+    "add_credit": "Tambahan",
+    "credit": "Kredit",
+    "active_period": "Masa Aktif +",
+    "days": "Hari",
+    "full_access": "Akses penuh hasil ekstraksi",
+    "buy": "Beli",
+    "package": "Paket",
+    "processing": "Memproses..."
   }
 }

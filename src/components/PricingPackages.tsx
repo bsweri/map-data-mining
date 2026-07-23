@@ -15,7 +15,7 @@ interface Package {
 }
 
 export default function PricingPackages() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [packages, setPackages] = useState<Package[]>([]);
@@ -75,8 +75,8 @@ export default function PricingPackages() {
   return (
     <div className="py-12 bg-surface rounded-3xl shadow-sm border border-outline-variant my-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h2 className="text-3xl font-bold text-on-surface sm:text-4xl">Upgrade Paket Kredit Anda</h2>
-        <p className="mt-4 text-lg text-on-surface-variant">Dapatkan tambahan kredit dan masa aktif untuk akses penuh ke pencarian Google Maps.</p>
+        <h2 className="text-3xl font-bold text-on-surface sm:text-4xl">{t('pricing.title')}</h2>
+        <p className="mt-4 text-lg text-on-surface-variant">{t('pricing.desc')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -95,15 +95,15 @@ export default function PricingPackages() {
               <ul className="mt-6 space-y-4 flex-1">
                 <li className="flex gap-3">
                   <Zap className="w-5 h-5 text-primary shrink-0" />
-                  <span className="text-on-surface-variant text-sm">Tambahan <strong>{new Intl.NumberFormat('id-ID').format(pkg.credit_amount)} Kredit</strong></span>
+                  <span className="text-on-surface-variant text-sm">{t('pricing.add_credit')} <strong>{new Intl.NumberFormat(i18n.resolvedLanguage === 'en' ? 'en-US' : 'id-ID').format(pkg.credit_amount)} {t('pricing.credit')}</strong></span>
                 </li>
                 <li className="flex gap-3">
                   <Check className="w-5 h-5 text-primary shrink-0" />
-                  <span className="text-on-surface-variant text-sm">Masa Aktif +<strong>{pkg.active_days_addition} Hari</strong></span>
+                  <span className="text-on-surface-variant text-sm">{t('pricing.active_period')}<strong>{pkg.active_days_addition} {t('pricing.days')}</strong></span>
                 </li>
                 <li className="flex gap-3">
                   <Check className="w-5 h-5 text-primary shrink-0" />
-                  <span className="text-on-surface-variant text-sm">Akses penuh hasil ekstraksi</span>
+                  <span className="text-on-surface-variant text-sm">{t('pricing.full_access')}</span>
                 </li>
               </ul>
 
@@ -119,7 +119,7 @@ export default function PricingPackages() {
                 ) : (
                   <CreditCard size={18} />
                 )}
-                {isProcessing === pkg.id ? 'Memproses...' : `Beli Paket ${pkg.name}`}
+                {isProcessing === pkg.id ? t('pricing.processing') : `${t('pricing.buy')} ${t('pricing.package')} ${pkg.name}`}
               </button>
             </div>
           );

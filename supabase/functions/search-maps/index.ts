@@ -72,6 +72,11 @@ Deno.serve(async (req) => {
     }
 
     let usedCredits = 0;
+    const apiStats = {
+      gmaps_geocode: 0,
+      gmaps_nearbysearch: 0,
+      gmaps_placedetails: 0
+    };
 
     // Geocode if needed
     if (coordMatch) {
@@ -81,6 +86,7 @@ Deno.serve(async (req) => {
       const geocodeRes = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${apiKey}`);
       const geocodeData = await geocodeRes.json();
       usedCredits++; // 1 API call
+      apiStats.gmaps_geocode++;
       
       if (!geocodeData.results || geocodeData.results.length === 0) {
          // Deduct credit anyway since we called the API
@@ -97,6 +103,7 @@ Deno.serve(async (req) => {
     const searchRes = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radiusMeters}&keyword=${encodeURIComponent(keyword)}&key=${apiKey}`);
     const searchData = await searchRes.json();
     usedCredits++; // 1 API call
+    apiStats.gmaps_nearbysearch++;
     
     // Log Activity
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
@@ -108,6 +115,7 @@ Deno.serve(async (req) => {
 
     if (searchData.status === 'ZERO_RESULTS') {
       await deductCredit(supabase, user_id, usedCredits);
+      await logApiStats(supabase, apiStats);
       return new Response(JSON.stringify({ data: [] }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -115,6 +123,7 @@ Deno.serve(async (req) => {
 
     if (searchData.status !== 'OK') {
       await deductCredit(supabase, user_id, usedCredits);
+      await logApiStats(supabase, apiStats);
       throw new Error(`Pencarian gagal: ${searchData.status}`);
     }
 
@@ -124,6 +133,7 @@ Deno.serve(async (req) => {
     const availableCredit = profile.credit - usedCredits;
     const detailsToFetch = Math.min(places.length, availableCredit);
     usedCredits += detailsToFetch;
+    apiStats.gmaps_placedetails += detailsToFetch;
 
     const mappedPromises = places.map(async (place: any, index: number) => {
       const distance = haversine(lat, lng, place.geometry.location.lat, place.geometry.location.lng);
@@ -152,8 +162,9 @@ Deno.serve(async (req) => {
 
     const mappedData = await Promise.all(mappedPromises);
 
-    // Final deduction
+    // Final deduction and log
     await deductCredit(supabase, user_id, usedCredits);
+    await logApiStats(supabase, apiStats);
 
     return new Response(JSON.stringify({ data: mappedData, creditsUsed: usedCredits }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -179,13 +190,7 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
 }
 
 async function deductCredit(supabase: any, userId: string, usedCredits: number) {
-  if (usedCredits > 0) {
-     // Because this is Edge Function, we might have concurrency. 
-     // For simple approach, we fetch and update or use an RPC.
-     // Supabase RPC is better for atomic decrement, but for now we can do a simple RPC if we create one,
-     // or just get current credit and decrement if traffic isn't super high.
-     // A better way is using an RPC `decrement_credit`. 
-     // Since we don't have it yet, we'll do:
+   if (usedCredits > 0) {
      const { data: current } = await supabase.from('profiles').select('credit').eq('id', userId).single();
      if (current) {
         await supabase.from('profiles').update({ 
@@ -193,5 +198,12 @@ async function deductCredit(supabase: any, userId: string, usedCredits: number) 
           last_extraction_at: new Date().toISOString()
         }).eq('id', userId);
      }
+  }
+}
+
+async function logApiStats(supabase: any, stats: Record<string, number>) {
+  const filteredStats = Object.fromEntries(Object.entries(stats).filter(([_, v]) => v > 0));
+  if (Object.keys(filteredStats).length > 0) {
+    await supabase.rpc('increment_multiple_api_stats', { p_stats: filteredStats });
   }
 }

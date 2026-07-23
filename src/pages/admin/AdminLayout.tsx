@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, CreditCard, LogOut, Settings, MapPinned, Inbox as InboxIcon } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, LogOut, Settings, MapPinned, Inbox as InboxIcon, Activity } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function AdminLayout() {
@@ -7,10 +7,11 @@ export default function AdminLayout() {
   const { signOut } = useAuth();
 
   const navItems = [
-    { name: 'Overview', path: '/admin', icon: LayoutDashboard },
-    { name: 'Manage Users', path: '/admin/users', icon: Users },
+    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+    { name: 'User Management', path: '/admin/users', icon: Users },
+    { name: 'API Monitoring', path: '/admin/api', icon: Activity },
     { name: 'Pricing & Quota', path: '/admin/pricing', icon: CreditCard },
-    { name: 'Inbox Messages', path: '/admin/messages', icon: InboxIcon },
+    { name: 'Inbox', path: '/admin/messages', icon: InboxIcon },
     { name: 'Global Settings', path: '/admin/settings', icon: Settings },
   ];
 

@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import Header from '../components/Header';
 import PricingPackages from '../components/PricingPackages';
 import Footer from '../components/Footer';
 
 export default function Pricing() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-background text-on-background font-inter flex flex-col selection:bg-primary-container selection:text-white">
       <Header />
@@ -13,10 +15,10 @@ export default function Pricing() {
             Premium Plans
           </span>
           <h1 className="font-hanken text-4xl md:text-5xl font-bold text-on-background mt-4">
-            Pilih Paket Terbaik untuk Bisnis Anda
+            {t('pricing.page_title')}
           </h1>
           <p className="text-on-surface-variant mt-3 text-base">
-            GeoExtract menyediakan solusi geospatial data mining terbaik untuk menunjang riset pasar dan ekspansi bisnis Anda.
+            {t('pricing.page_desc')}
           </p>
         </div>
         

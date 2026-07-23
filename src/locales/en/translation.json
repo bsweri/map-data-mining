@@ -45,5 +45,19 @@
   },
   "export": {
     "button": "Export to Excel"
+  },
+  "pricing": {
+    "page_title": "Choose the Best Plan for Your Business",
+    "page_desc": "GeoExtract provides the best geospatial data mining solution to support your market research and business expansion.",
+    "title": "Upgrade Your Credit Package",
+    "desc": "Get additional credits and active period for full access to Google Maps search.",
+    "add_credit": "Additional",
+    "credit": "Credits",
+    "active_period": "Active Period +",
+    "days": "Days",
+    "full_access": "Full access to extraction results",
+    "buy": "Buy",
+    "package": "Package",
+    "processing": "Processing..."
   }
 }

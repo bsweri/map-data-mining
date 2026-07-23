@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useLocation } from 'react-router-dom';
+import PricingPackages from '../components/PricingPackages';
+import Affiliate from './Affiliate';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import type { MapPlace } from '../types';
@@ -24,7 +26,8 @@ import {
   Filter,
   AlertTriangle,
   CheckCircle2,
-  Info
+  Info,
+  Users
 } from 'lucide-react';
 
 export default function UserDashboard() {
@@ -122,13 +125,19 @@ export default function UserDashboard() {
   }, [lastExtractionAt, adminSettings]);
 
   useEffect(() => {
-    // Auto-trigger search if query params are present from Home page redirect
-    if (keyword && location && !autoTriggered.current && status === 'active' && credit >= 1) {
+    // Cek eksplisit data bawaan dari halaman Home atau URL saat komponen dimuat
+    const pendingSearchStr = sessionStorage.getItem('pendingSearch');
+    const pendingSearch = pendingSearchStr ? JSON.parse(pendingSearchStr) : null;
+    const hasInitialData = (pendingSearch?.keyword || searchParams.get('keyword')) && 
+                           (pendingSearch?.location || searchParams.get('location'));
+
+    // Auto-trigger HANYA jika memang ada data bawaan dari redirect
+    if (hasInitialData && !autoTriggered.current && status === 'active' && credit >= 1) {
       autoTriggered.current = true;
       sessionStorage.removeItem('pendingSearch');
       handleSearch();
     }
-  }, [keyword, location, status, credit]);
+  }, [status, credit, searchParams]);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -277,6 +286,7 @@ export default function UserDashboard() {
     window.location.href = import.meta.env.BASE_URL || '/';
   };
 
+  const routerLocation = useLocation();
   const remainingDays = activeUntil ? Math.max(0, Math.ceil((new Date(activeUntil).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : 0;
   const showAds = adminSettings && credit < adminSettings.ads_min_credit && status === 'grace';
 
@@ -316,6 +326,10 @@ export default function UserDashboard() {
             <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/pricing">
               <CreditCard size={18} />
               Buy Credits
+            </Link>
+            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/affiliate">
+              <Users size={18} />
+              Affiliate
             </Link>
 
           </div>
@@ -414,8 +428,14 @@ export default function UserDashboard() {
 
         {/* Dashboard Content */}
         <div className="p-gutter max-w-container-max mx-auto w-full flex-grow">
-          {/* Search Interface: Bento Style */}
-          <section className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+          {routerLocation.pathname === '/pricing' ? (
+             <div className="py-2"><PricingPackages /></div>
+          ) : routerLocation.pathname === '/affiliate' ? (
+             <div className="py-2"><Affiliate /></div>
+          ) : (
+            <>
+              {/* Search Interface: Bento Style */}
+              <section className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
             <div className="md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm">
               <div className="mb-4">
                 <h3 className="font-hanken text-xl font-bold text-on-surface mb-1">New Extraction</h3>
@@ -708,6 +728,8 @@ export default function UserDashboard() {
               <span className="text-on-surface-variant font-inter text-xs font-semibold">Geo-Targeted Advertising Banner</span>
             </div>
           </section>
+            </>
+          )}
         </div>
 
         {/* Footer */}

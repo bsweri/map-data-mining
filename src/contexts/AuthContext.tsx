@@ -55,6 +55,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+  // Database Session Tracking (Historical Analytics)
+  useEffect(() => {
+    let sessionId: string | null = null;
+    let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
+
+    const startSession = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('user_sessions')
+          .insert([{ user_id: user.id }])
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        
+        if (data) {
+          sessionId = data.id;
+
+          // Pinging database every 10 minutes (600000 ms)
+          heartbeatInterval = setInterval(async () => {
+            if (sessionId) {
+              await supabase
+                .from('user_sessions')
+                .update({ last_seen_at: new Date().toISOString() })
+                .eq('id', sessionId);
+            }
+          }, 600000);
+        }
+      } catch (err) {
+        console.error('Error starting database session:', err);
+      }
+    };
+
+    startSession();
+
+    return () => {
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
+      if (sessionId) {
+        // Final ping on disconnect (fire and forget)
+        supabase
+          .from('user_sessions')
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq('id', sessionId)
+          .then(); 
+      }
+    };
+  }, [user]);
 
   const fetchProfile = async (userId: string) => {
     try {
