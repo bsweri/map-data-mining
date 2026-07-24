@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, CreditCard, LogOut, Settings, MapPinned, Inbox as InboxIcon, Activity } from 'lucide-react';
+import { LayoutDashboard, Users, CreditCard, LogOut, Settings, MapPinned, Inbox as InboxIcon, Activity, Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function AdminLayout() {
   const { pathname } = useLocation();
   const { signOut } = useAuth();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
@@ -22,8 +24,25 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-surface text-on-surface font-inter">
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-40 md:hidden backdrop-blur-xs transition-opacity duration-300" 
+          onClick={() => setIsMobileSidebarOpen(false)} 
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="w-64 fixed left-0 top-0 h-screen bg-surface/80 backdrop-blur-xl border-r border-outline-variant flex flex-col py-6 z-50 shadow-sm transition-all duration-300">
+      <aside className={`w-64 fixed left-0 top-0 h-screen bg-surface/80 backdrop-blur-xl border-r border-outline-variant flex flex-col py-6 z-50 shadow-sm transition-transform duration-300 ease-in-out md:translate-x-0 ${
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        <button 
+          onClick={() => setIsMobileSidebarOpen(false)}
+          className="md:hidden absolute right-4 top-4 p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-all"
+        >
+          <X size={18} />
+        </button>
+
         <div className="px-6 mb-8">
           <Link to="/" className="text-2xl font-hanken font-bold text-primary cursor-pointer active:scale-95 transition-all flex items-center gap-2">
             <MapPinned size={24} />
@@ -40,6 +59,7 @@ export default function AdminLayout() {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setIsMobileSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 mx-2 rounded-lg transition-all duration-300 ease-in-out hover:-translate-y-0.5 ${
                   isActive 
                     ? 'bg-secondary-container text-on-secondary-container font-bold shadow-sm' 
@@ -80,7 +100,20 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="ml-64 flex-1 overflow-y-auto bg-surface flex flex-col min-h-screen">
+      <main className="md:ml-64 flex-1 overflow-y-auto bg-surface flex flex-col min-h-screen">
+        {/* Mobile Header */}
+        <header className="md:hidden h-16 px-gutter flex items-center justify-between sticky top-0 bg-surface/80 backdrop-blur-md border-b border-outline-variant z-30">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+            <h2 className="font-hanken text-lg font-bold text-on-surface">Admin Console</h2>
+          </div>
+        </header>
+
         <div className="p-gutter max-w-container-max mx-auto w-full flex-grow">
           <Outlet />
         </div>
