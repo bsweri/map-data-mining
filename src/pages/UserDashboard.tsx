@@ -316,7 +316,7 @@ export default function UserDashboard() {
           <h1 className="font-hanken text-2xl font-bold text-primary tracking-tight">GeoExtract</h1>
         </div>
         
-        <nav className="flex-grow">
+        <nav className="mb-2">
           <div className="px-2 space-y-1">
 
             <Link className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" to="/dashboard">
