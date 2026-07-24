@@ -51,7 +51,7 @@ export default function AdminLayout() {
           <p className="text-[10px] font-bold text-on-surface-variant opacity-70 mt-1 uppercase tracking-widest">ADMIN CONSOLE</p>
         </div>
         
-        <nav className="flex-1 px-2 space-y-1 overflow-y-auto">
+        <nav className="px-2 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.path;
             const Icon = item.icon;
@@ -74,7 +74,7 @@ export default function AdminLayout() {
         </nav>
         
         {/* Profile Card / Quota */}
-        <div className="px-4 mt-auto">
+        <div className="px-4 mt-4">
           <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-outline-variant mb-4">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm">
