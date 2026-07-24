@@ -316,6 +316,56 @@ export default function UserDashboard() {
           <h1 className="font-hanken text-2xl font-bold text-primary tracking-tight">GeoExtract</h1>
         </div>
         
+        {/* Mobile Profile & Quota Section (Hidden on Desktop) */}
+        <div className="md:hidden px-4 mb-6">
+          <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-outline-variant flex flex-col gap-4">
+            {/* Avatar & Info */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full border-2 border-primary/20 flex items-center justify-center bg-primary text-on-primary font-bold shadow-sm text-sm">
+                {profile?.email ? profile.email.substring(0, 2).toUpperCase() : 'US'}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-on-surface leading-tight truncate w-32">
+                  {profile?.email ? profile.email.split('@')[0] : 'User'}
+                </span>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${status === 'active' ? 'text-green-600 dark:text-green-400' : status === 'grace' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {status}
+                </span>
+              </div>
+            </div>
+
+            <div className="h-px bg-outline-variant w-full"></div>
+
+            {/* Credit & Active Days */}
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Credit</span>
+                <span className="text-sm font-extrabold text-primary">{credit.toLocaleString('id-ID')}</span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Active</span>
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full ${remainingDays > 7 ? 'bg-green-500' : remainingDays > 0 ? 'bg-amber-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}></div>
+                  <span className="text-sm font-extrabold text-on-surface">{remainingDays}d</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Extend Button */}
+            <button 
+              onClick={() => {
+                setIsMobileSidebarOpen(false);
+                setShowExtendModal(true);
+              }}
+              disabled={isBuyingActivePeriod || !adminSettings || credit < adminSettings.active_period_price_credit}
+              className="w-full flex justify-center items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary px-3 py-2 rounded-lg border border-primary/30 transition-all disabled:opacity-50"
+            >
+              <Zap size={14} />
+              <span className="text-xs font-bold uppercase tracking-wide">Extend Period</span>
+            </button>
+          </div>
+        </div>
+        
         <nav className="flex-grow">
           <div className="px-2 space-y-1">
 
@@ -409,9 +459,9 @@ export default function UserDashboard() {
 
             <div className="h-6 w-px bg-outline-variant mx-1"></div>
 
-            {/* User Avatar */}
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <div className="flex flex-col text-right hidden md:flex">
+            {/* User Avatar (Desktop Only) */}
+            <div className="hidden md:flex items-center gap-2 cursor-pointer group">
+              <div className="flex flex-col text-right">
                 <span className="text-xs font-bold text-on-surface leading-tight group-hover:text-primary transition-colors">
                   {profile?.email ? profile.email.split('@')[0] : 'User'}
                 </span>
