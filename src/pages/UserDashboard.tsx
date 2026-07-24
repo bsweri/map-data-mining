@@ -316,8 +316,27 @@ export default function UserDashboard() {
           <h1 className="font-hanken text-2xl font-bold text-primary tracking-tight">GeoExtract</h1>
         </div>
         
+        <nav className="flex-grow">
+          <div className="px-2 space-y-1">
+
+            <Link className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" to="/dashboard">
+              <Compass size={18} />
+              Dashboard
+            </Link>
+            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/pricing">
+              <CreditCard size={18} />
+              Buy Credits
+            </Link>
+            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/affiliate">
+              <Users size={18} />
+              Affiliate
+            </Link>
+
+          </div>
+        </nav>
+
         {/* Mobile Profile & Quota Section (Hidden on Desktop) */}
-        <div className="md:hidden px-4 mb-6">
+        <div className="md:hidden px-4 mb-4">
           <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-outline-variant flex flex-col gap-4">
             {/* Avatar & Info */}
             <div className="flex items-center gap-3">
@@ -365,27 +384,6 @@ export default function UserDashboard() {
             </button>
           </div>
         </div>
-        
-        <nav className="flex-grow">
-          <div className="px-2 space-y-1">
-
-            <Link className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" to="/dashboard">
-              <Compass size={18} />
-              Dashboard
-            </Link>
-            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/pricing">
-              <CreditCard size={18} />
-              Buy Credits
-            </Link>
-            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/affiliate">
-              <Users size={18} />
-              Affiliate
-            </Link>
-
-          </div>
-        </nav>
-
-
 
         <div className="border-t border-outline-variant pt-4 px-2 space-y-1">
           <button 
