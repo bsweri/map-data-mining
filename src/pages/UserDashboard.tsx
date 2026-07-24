@@ -319,15 +319,15 @@ export default function UserDashboard() {
         <nav className="mb-2">
           <div className="px-2 space-y-1">
 
-            <Link className="bg-secondary-container text-on-secondary-container duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-bold font-inter text-sm font-medium" to="/dashboard">
+            <Link className={`${routerLocation.pathname === '/dashboard' ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'} duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium`} to="/dashboard">
               <Compass size={18} />
               Dashboard
             </Link>
-            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/pricing">
+            <Link className={`${routerLocation.pathname === '/pricing' ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'} duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium`} to="/pricing">
               <CreditCard size={18} />
               Buy Credits
             </Link>
-            <Link className="text-on-surface-variant hover:bg-surface-container-high duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium" to="/affiliate">
+            <Link className={`${routerLocation.pathname === '/affiliate' ? 'bg-secondary-container text-on-secondary-container font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'} duration-200 ease-in-out px-4 py-3 mx-2 flex items-center gap-3 rounded-lg font-inter text-sm font-medium`} to="/affiliate">
               <Users size={18} />
               Affiliate
             </Link>
